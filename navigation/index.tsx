@@ -187,8 +187,8 @@ export default function Navigation({
         ) : (
           <AuthStack.Navigator initialRouteName="Home">
             <AuthStack.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />
-            <AuthStack.Screen name="SignInScreen" component={SignInScreen} />
-            <AuthStack.Screen name="SignUpScreen" component={SignUpScreen} />
+            <AuthStack.Screen name="SignInScreen" component={SignInScreen} options={{headerShown: false}} />
+            <AuthStack.Screen name="SignUpScreen" component={SignUpScreen} options={{headerShown: false}} />
           </AuthStack.Navigator>
         )}
       </NavigationContainer>

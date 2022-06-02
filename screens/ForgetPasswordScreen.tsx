@@ -10,7 +10,7 @@ import { Button } from 'react-native-paper';
 
 import { HomeScreenProps } from "../types";
 
-const HomeScreen = ({ route, navigation }: HomeScreenProps) => {
+const ForgetPasswordScreen = ({ route, navigation }: HomeScreenProps) => {
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -60,7 +60,7 @@ const HomeScreen = ({ route, navigation }: HomeScreenProps) => {
   );
 };
 
-export default HomeScreen;
+export default ForgetPasswordScreen;
 
 const styles = StyleSheet.create({
   container: {
