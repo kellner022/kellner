@@ -25,6 +25,7 @@ import DataScreen from "../screens/DataScreen";
 import PlatformScreen from "../screens/PlatformScreen";
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import HomeScreen from "../screens/HomeScreen";
 
 import { Text } from "../components/Themed";
 
@@ -184,7 +185,8 @@ export default function Navigation({
             />
           </TopTab.Navigator>
         ) : (
-          <AuthStack.Navigator initialRouteName="SignInScreen">
+          <AuthStack.Navigator initialRouteName="Home">
+            <AuthStack.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />
             <AuthStack.Screen name="SignInScreen" component={SignInScreen} />
             <AuthStack.Screen name="SignUpScreen" component={SignUpScreen} />
           </AuthStack.Navigator>

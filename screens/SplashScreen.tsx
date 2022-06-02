@@ -18,7 +18,7 @@ import { AuthContext } from "../components/Context";
 import Users from "../model/users";
 import { SinInScreenProps } from "../types";
 
-const SignInScreen = ({ route, navigation }: SinInScreenProps) => {
+const SplashScreen = ({ route, navigation }: SinInScreenProps) => {
   const [data, setData] = React.useState({
     username: "",
     password: "",
@@ -266,7 +266,7 @@ const SignInScreen = ({ route, navigation }: SinInScreenProps) => {
   );
 };
 
-export default SignInScreen;
+export default SplashScreen;
 
 const styles = StyleSheet.create({
   container: {

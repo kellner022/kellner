@@ -16,7 +16,7 @@ import * as Animatable from 'react-native-animatable';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome, Feather } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
-import { AuthContext } from './Context';
+import { AuthContext } from '../components/Context';
 
 import { SinUpScreenProps } from "../types";
 

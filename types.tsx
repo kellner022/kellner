@@ -35,6 +35,7 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 >;
 
 export type UserAuthParamList = {
+  Home: undefined;
   SignInScreen: undefined;
   SignUpScreen: undefined;
 };
@@ -44,5 +45,6 @@ export type UserAuthScreenProps<Screen extends keyof UserAuthParamList> = Compos
   NativeStackScreenProps<UserAuthParamList>
 >;
 
+export type HomeScreenProps = NativeStackScreenProps<UserAuthParamList, 'Home'>;
 export type SinInScreenProps = NativeStackScreenProps<UserAuthParamList, 'SignInScreen'>;
 export type SinUpScreenProps = NativeStackScreenProps<UserAuthParamList, 'SignUpScreen'>;
