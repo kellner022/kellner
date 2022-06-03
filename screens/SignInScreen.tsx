@@ -72,9 +72,6 @@ const SignInScreen = ({ route, navigation }: HomeScreenProps) => {
                 placeholderTextColor={"white"}
               />
             </View>
-            <Text style={{ color: "white", fontSize: 20 }}>
-              ¿Olvidaste la contraseña?
-            </Text>
             <Button
               mode="contained"
               onPress={() => {
@@ -84,12 +81,26 @@ const SignInScreen = ({ route, navigation }: HomeScreenProps) => {
               }}
               color={"white"}
               contentStyle={{ height: 70, width: 350 }}
-              labelStyle={{ fontSize: 22 }}
+              labelStyle={{ fontSize: 22, color: '#C93E54' }}
               style={[styles.signInButton, { marginTop: 30 }]}
               uppercase={false}
             >
-              Iniciar sesión
+              Entrar
             </Button>
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: 'space-around',
+                width: 350,
+              }}
+              onPress={() => {
+                console.log("Forget password");
+                // navigation.navigate("SignUpScreen");
+              }}
+            >
+              <Text style={{fontSize: 20, fontWeight: 'bold', color: 'white'}}>¿Olvidaste la contraseña?</Text>
+            </TouchableOpacity>
 
             <Text style={{ color: "white", fontSize: 20, marginTop: 70 }}>
               Iniciar sesión con

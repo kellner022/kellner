@@ -3,56 +3,149 @@ import {
   View,
   Image,
   StyleSheet,
-  StatusBar,
+  Text,
+  TextInput,
   ImageBackground,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Button } from 'react-native-paper';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { HomeScreenProps } from "../types";
 
 const SignUpScreen = ({ route, navigation }: HomeScreenProps) => {
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [phoneNo, setPhoneNo] = React.useState('');
+
   return (
     <View style={styles.container}>
       <ImageBackground
         source={require("../assets/images/background.png")}
-        resizeMode="cover"
+        resizeMode="repeat"
         style={styles.image}
       >
-        <StatusBar backgroundColor="#FF6347" barStyle="light-content" />
         <View style={styles.main}>
-          <View style={styles.logo}>
-            <Image source={require("../assets/images/logo.png")}></Image>
-          </View>
-          <View>
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: 0,
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 25, fontWeight: "bold" }}>
+            Registrarse
+            </Text>
+            <Text style={{ color: "white", fontSize: 18,
+            paddingTop: 5,  width: 250, textAlign: 'center', fontWeight: 'bold'  }}>
+            Fill in the following fields to create a new account
+            </Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputPrefix}>{`    `}</Text>
+              <TextInput
+                onChangeText={(text) => {
+                  setName(text);
+                }}
+                value={name}
+                keyboardType={"default"}
+                style={styles.input}
+                placeholder="Nombre"
+                placeholderTextColor={"white"}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputPrefix}>{`    `}</Text>
+              <TextInput
+                onChangeText={(text) => {
+                  setEmail(text);
+                }}
+                value={email}
+                keyboardType={"default"}
+                autoComplete={"password"}
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor={"white"}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputPrefix}>{`    `}</Text>
+              <TextInput
+                onChangeText={(text) => {
+                  setPhoneNo(text);
+                }}
+                value={phoneNo}
+                keyboardType={'numeric'}
+                style={styles.input}
+                placeholder="Número de teléfono"
+                placeholderTextColor={"white"}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputPrefix}>{`    `}</Text>
+              <TextInput
+                secureTextEntry={true}
+                onChangeText={(text) => {
+                  setPassword(text);
+                }}
+                value={password}
+                keyboardType={"default"}
+                autoComplete={"password"}
+                style={styles.input}
+                placeholder="Contraseña"
+                placeholderTextColor={"white"}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputPrefix}>{`    `}</Text>
+              <TextInput
+                secureTextEntry={true}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                }}
+                value={confirmPassword}
+                keyboardType={"default"}
+                autoComplete={"password"}
+                style={styles.input}
+                placeholder="Confirmar Contraseña"
+                placeholderTextColor={"white"}
+              />
+            </View>
             <Button
               mode="contained"
               onPress={() => {
                 console.log("Jumping to Sign In page");
-                navigation.navigate("SignInScreen");
+                Alert.alert("Sign Up", "Sign up succeed, new account created!");
+                // navigation.navigate("SignInScreen");
               }}
               color={"white"}
-              contentStyle={{ height: 80, width: 280 }}
+              contentStyle={{ height: 70, width: 350 }}
               labelStyle={{ fontSize: 22 }}
-              style={styles.signInButton}
+              style={[styles.signInButton, { marginTop: 30 }]}
               uppercase={false}
             >
-              Iniciar sesión
+              Crear cuenta
             </Button>
-            <View>
-              <Button
-                mode="contained"
-                onPress={() => {
-                  console.log("Jumpng to Create a new account page");
-                  navigation.navigate("SignUpScreen");
-                }}
-                contentStyle={{ height: 80, width: 280 }}
-                labelStyle={{ fontSize: 22 }}
-                style={styles.signUpButton}
-                uppercase={false}
-              >
-                Crear una cuenta
-              </Button>
-            </View>
+
+            <Text style={{ color: "white", fontSize: 20, marginTop: 40 }}>
+            ¿Ya tienes una cuenta?
+            </Text>
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: 'space-around',
+                width: 350,
+              }}
+              onPress={() => {
+                console.log("Create a new account");
+                navigation.navigate("SignInScreen");
+              }}
+            >
+              <Text style={{fontSize: 20, fontWeight: 'bold', color: 'white'}}>Iniciar sesión</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ImageBackground>
@@ -68,7 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF6347",
   },
   logo: {
-    paddingHorizontal: 30,
+    // paddingHorizontal: 30,
   },
   main: {
     flex: 1,
@@ -80,14 +173,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   signInButton: {
-    marginTop: 50,
+    marginTop: 20,
     borderRadius: 50,
   },
-  signUpButton: {
-    marginTop: 50,
+  input: {
+    width: 280,
+    fontSize: 20
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
     borderRadius: 50,
-    borderWidth: 2,
-    borderColor: "white",
+    height: 70,
+    margin: 6,
+    padding: 10,
+    fontSize: 20,
     backgroundColor: "rgba(52, 52, 52, 0.1)",
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  inputPrefix: {
+    paddingHorizontal: 5,
+    fontSize: 20,
+    color: '#9AAAAA',
   },
 });

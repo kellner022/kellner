@@ -38,6 +38,9 @@ export type UserAuthParamList = {
   Home: undefined;
   SignInScreen: undefined;
   SignUpScreen: undefined;
+  ForgetPasswordScreen: undefined;
+  InputVerifyCodeScreen: undefined;
+  ResetPasswordScreen: undefined;
 };
 
 export type UserAuthScreenProps<Screen extends keyof UserAuthParamList> = CompositeScreenProps<
@@ -48,3 +51,6 @@ export type UserAuthScreenProps<Screen extends keyof UserAuthParamList> = Compos
 export type HomeScreenProps = NativeStackScreenProps<UserAuthParamList, 'Home'>;
 export type SinInScreenProps = NativeStackScreenProps<UserAuthParamList, 'SignInScreen'>;
 export type SinUpScreenProps = NativeStackScreenProps<UserAuthParamList, 'SignUpScreen'>;
+export type ForgetPasswordScreenProps = NativeStackScreenProps<UserAuthParamList, 'ForgetPasswordScreen'>;
+export type InputVerifyCodeScreenProps = NativeStackScreenProps<UserAuthParamList, 'InputVerifyCodeScreen'>;
+export type ResetPasswordScreenProps = NativeStackScreenProps<UserAuthParamList, 'ResetPasswordScreen'>;

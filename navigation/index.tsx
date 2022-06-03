@@ -23,9 +23,13 @@ import UserScreen from "../screens/UserScreen";
 import CoinScreen from "../screens/CoinScreen";
 import DataScreen from "../screens/DataScreen";
 import PlatformScreen from "../screens/PlatformScreen";
+
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import HomeScreen from "../screens/HomeScreen";
+import ForgetPasswordScreen from "../screens/ForgetPasswordScreen";
+import ResetPasswordScreen from "../screens/ResetPasswordScreen";
+import InputVerifyCodeScreen from "../screens/InputVerifyCodeScreen";
 
 import { Text } from "../components/Themed";
 
@@ -189,6 +193,9 @@ export default function Navigation({
             <AuthStack.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />
             <AuthStack.Screen name="SignInScreen" component={SignInScreen} options={{headerShown: false}} />
             <AuthStack.Screen name="SignUpScreen" component={SignUpScreen} options={{headerShown: false}} />
+            <AuthStack.Screen name="ForgetPasswordScreen" component={ForgetPasswordScreen} options={{headerShown: false}} />
+            <AuthStack.Screen name="InputVerifyCodeScreen" component={InputVerifyCodeScreen} options={{headerShown: false}} />
+            <AuthStack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{headerShown: false}} />
           </AuthStack.Navigator>
         )}
       </NavigationContainer>
