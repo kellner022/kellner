@@ -31,7 +31,7 @@ const HomeScreen = ({ route, navigation }: HomeScreenProps) => {
                 navigation.navigate("SignInScreen");
               }}
               color={"white"}
-              contentStyle={{ height: 80, width: 280 }}
+              contentStyle={{ height: 80, width: 350 }}
               labelStyle={{ fontSize: 22 }}
               style={styles.signInButton}
               uppercase={false}
@@ -45,7 +45,7 @@ const HomeScreen = ({ route, navigation }: HomeScreenProps) => {
                   console.log("Jumpng to Create a new account page");
                   navigation.navigate("SignUpScreen");
                 }}
-                contentStyle={{ height: 80, width: 280 }}
+                contentStyle={{ height: 80, width: 350 }}
                 labelStyle={{ fontSize: 22 }}
                 style={styles.signUpButton}
                 uppercase={false}
