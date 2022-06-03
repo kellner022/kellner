@@ -96,7 +96,7 @@ const SignInScreen = ({ route, navigation }: HomeScreenProps) => {
               }}
               onPress={() => {
                 console.log("Forget password");
-                // navigation.navigate("SignUpScreen");
+                navigation.navigate("ForgetPasswordScreen");
               }}
             >
               <Text style={{fontSize: 20, fontWeight: 'bold', color: 'white'}}>¿Olvidaste la contraseña?</Text>
