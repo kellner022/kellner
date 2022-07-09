@@ -96,7 +96,7 @@ export default ResetPasswordScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FF6347",
+    backgroundColor: "#C93E54",
   },
   logo: {
     // paddingHorizontal: 30,

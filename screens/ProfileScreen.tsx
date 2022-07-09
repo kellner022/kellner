@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#C93E54',
   },
   title: {
     fontSize: 20,

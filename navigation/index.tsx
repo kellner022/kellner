@@ -177,7 +177,7 @@ export default function Navigation({
                 }
               },
               tabBarInactiveTintColor: "black",
-              tabBarActiveTintColor: 'tomato',
+              // tabBarActiveTintColor: 'tomato',
               tabBarLabelStyle: { fontSize: 20 },
               tabBarStyle: { backgroundColor: "white", paddingTop: insets.top },
             })}

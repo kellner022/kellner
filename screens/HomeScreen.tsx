@@ -64,6 +64,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#C93E54',
   },
   logo: {
     // paddingHorizontal: '20%',
