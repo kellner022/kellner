@@ -25,9 +25,10 @@ import ResetPasswordScreen from "../screens/ResetPasswordScreen";
 import InputVerifyCodeScreen from "../screens/InputVerifyCodeScreen";
 
 import StartScreen from "../screens/StartScreen";
-import BookingScreen from "../screens/BookingScreen";
+import OrderScreen from "../screens/BookingScreen";
 import ReserveScreen from "../screens/ReserveScreen";
 import FavoriteScreen from "../screens/FavoriteScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
 import {
   RootStackParamList,
@@ -153,7 +154,7 @@ export default function Navigation({
             initialRouteName="Home"
             screenOptions={({ route }) => ({
               tabBarIcon: ({ focused, color, size }) => {
-                if (route.name === 'Home') {
+                if (route.name === 'Start') {
                   return (
                     <Ionicons
                       name={
@@ -193,13 +194,18 @@ export default function Navigation({
             />
             <RootTab.Screen
               name="Booking"
-              component={BookingScreen}
+              component={OrderScreen}
               options={{ tabBarLabel: "Pedido" }}
             />
             <RootTab.Screen
               name="Favorite"
               component={FavoriteScreen}
               options={{ tabBarLabel: "Favoritos" }}
+            />
+            <RootTab.Screen
+              name="Profile"
+              component={ProfileScreen}
+              options={{ tabBarLabel: "Mi perfil" }}
             />
           </RootTab.Navigator>
         ) : (

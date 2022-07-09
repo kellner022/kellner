@@ -3,7 +3,6 @@ import {
   View,
   Image,
   StyleSheet,
-  StatusBar,
   ImageBackground,
 } from "react-native";
 import { Button } from 'react-native-paper';
