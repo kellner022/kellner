@@ -18,10 +18,10 @@ const HomeScreen = ({ route, navigation }: HomeScreenProps) => {
         resizeMode="cover"
         style={styles.image}
       >
-        <StatusBar backgroundColor="#FF6347" barStyle="light-content" />
         <View style={styles.main}>
           <View style={styles.logo}>
-            <Image source={require("../assets/images/logo.png")}></Image>
+            <Image source={require("../assets/images/logo.png")}
+            style={{width: 230, height: 150, resizeMode: "stretch"}}></Image>
           </View>
           <View>
             <Button
@@ -31,8 +31,8 @@ const HomeScreen = ({ route, navigation }: HomeScreenProps) => {
                 navigation.navigate("SignInScreen");
               }}
               color={"white"}
-              contentStyle={{ height: 80, width: 350 }}
-              labelStyle={{ fontSize: 22 }}
+              contentStyle={{ height: 60, width: '100%' }}
+              labelStyle={{ fontSize: 22, color: '#C93E54' }}
               style={styles.signInButton}
               uppercase={false}
             >
@@ -40,13 +40,13 @@ const HomeScreen = ({ route, navigation }: HomeScreenProps) => {
             </Button>
             <View>
               <Button
-                mode="contained"
+                mode="text"
                 onPress={() => {
                   console.log("Jumpng to Create a new account page");
                   navigation.navigate("SignUpScreen");
                 }}
-                contentStyle={{ height: 80, width: 350 }}
-                labelStyle={{ fontSize: 22 }}
+                contentStyle={{ height: 60, width: '100%' }}
+                labelStyle={{ fontSize: 22, color: 'white' }}
                 style={styles.signUpButton}
                 uppercase={false}
               >
@@ -65,10 +65,10 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FF6347",
   },
   logo: {
-    paddingHorizontal: 30,
+    // paddingHorizontal: '20%',
+    // backgroundColor: '#00ff00',
   },
   main: {
     flex: 1,
@@ -82,12 +82,13 @@ const styles = StyleSheet.create({
   signInButton: {
     marginTop: 50,
     borderRadius: 50,
+    marginHorizontal: '2%',
   },
   signUpButton: {
     marginTop: 50,
     borderRadius: 50,
     borderWidth: 2,
     borderColor: "white",
-    backgroundColor: "rgba(52, 52, 52, 0.1)",
+    marginHorizontal: '2%',
   },
 });

@@ -5,7 +5,6 @@ import {
   Text,
   TextInput,
   ImageBackground,
-  Alert,
   TouchableOpacity,
 } from "react-native";
 import { Button } from 'react-native-paper';
@@ -32,31 +31,43 @@ const InputVerifyCodeScreen = ({ route, navigation }: HomeScreenProps) => {
               marginTop: 0,
             }}
           >
-            <Text
-              style={{
-                color: "white",
-                fontSize: 25,
-                fontWeight: "bold",
-                width: 350,
-                textAlign: "center",
-              }}
-            >
-              Hemos mandado un mensaje a tu móvil
-            </Text>
+            <View style={styles.inputContainer}>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 25,
+                  fontWeight: "bold",
+                  width: "90%",
+                  textAlign: "center",
+                }}
+              >
+                Hemos mandado un mensaje a tu móvil
+              </Text>
+            </View>
+
+            <View style={styles.inputContainer}>
             <Text
               style={{
                 color: "white",
                 fontSize: 18,
                 paddingTop: 5,
-                width: 280,
+                width: '95%',
                 textAlign: "center",
               }}
             >
               Por favor, introduce el código que hemos mandado al ******709 para
               restaurar tu contraseña
             </Text>
+            </View>
+            
+            <View style={styles.inputContainer}>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 50 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 50,
+                width: '100%',
+              }}
             >
               <TextInput
                 secureTextEntry={true}
@@ -103,6 +114,9 @@ const InputVerifyCodeScreen = ({ route, navigation }: HomeScreenProps) => {
                 maxLength={1}
               />
             </View>
+            </View>
+            
+            <View style={styles.inputContainer}>
             <Button
               mode="contained"
               onPress={() => {
@@ -110,13 +124,15 @@ const InputVerifyCodeScreen = ({ route, navigation }: HomeScreenProps) => {
                 navigation.navigate("ResetPasswordScreen");
               }}
               color={"white"}
-              contentStyle={{ height: 70, width: 350 }}
+              contentStyle={{ height: 60, }}
               labelStyle={{ fontSize: 22, color: "#C93E54" }}
               style={[styles.signInButton, { marginTop: 50 }]}
               uppercase={false}
             >
               Siguiente
             </Button>
+            </View>
+            
             <Text
               style={{
                 color: "white",
@@ -132,7 +148,7 @@ const InputVerifyCodeScreen = ({ route, navigation }: HomeScreenProps) => {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                justifyContent: 'space-around',
+                justifyContent: "space-around",
                 width: 350,
               }}
               onPress={() => {
@@ -140,17 +156,17 @@ const InputVerifyCodeScreen = ({ route, navigation }: HomeScreenProps) => {
               }}
             >
               <Text
-              style={{
-                color: "white",
-                fontSize: 20,
-                paddingTop: 10,
-                width: 280,
-                textAlign: "center",
-                fontWeight: 'bold',
-              }}
-            >
-              Pincha aquí
-            </Text>
+                style={{
+                  color: "white",
+                  fontSize: 20,
+                  paddingTop: 10,
+                  width: 280,
+                  textAlign: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                Pincha aquí
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -181,27 +197,23 @@ const styles = StyleSheet.create({
   signInButton: {
     marginTop: 20,
     borderRadius: 50,
+    width: '95%'
   },
   input: {
     width: 60,
     height: 60,
     fontSize: 40,
-    marginHorizontal: 20,
     backgroundColor: 'white',
     borderRadius: 10,
+    paddingLeft: 20,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 10,
     borderRadius: 50,
-    height: 70,
     margin: 6,
     padding: 10,
     fontSize: 20,
-    backgroundColor: "rgba(52, 52, 52, 0.1)",
-    borderWidth: 2,
-    borderColor: 'white',
   },
   inputPrefix: {
     paddingHorizontal: 5,

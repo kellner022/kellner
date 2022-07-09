@@ -77,7 +77,7 @@ const ResetPasswordScreen = ({ route, navigation }: HomeScreenProps) => {
                 // navigation.navigate("SignInScreen");
               }}
               color={"white"}
-              contentStyle={{ height: 70, width: 350 }}
+              contentStyle={{ height: 60, width: 350 }}
               labelStyle={{ fontSize: 22, color: '#C93E54' }}
               style={[styles.signInButton, { marginTop: 30 }]}
               uppercase={false}
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 10,
     borderRadius: 50,
-    height: 70,
+    height: 60,
     margin: 6,
     padding: 10,
     fontSize: 20,

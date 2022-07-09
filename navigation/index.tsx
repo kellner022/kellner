@@ -3,10 +3,9 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { FontAwesome } from "@expo/vector-icons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { createStackNavigator } from '@react-navigation/stack';
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   NavigationContainer,
   DefaultTheme,
@@ -18,12 +17,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../components/Context";
 
-import WorkScreen from "../screens/WorkScreen";
-import UserScreen from "../screens/UserScreen";
-import CoinScreen from "../screens/CoinScreen";
-import DataScreen from "../screens/DataScreen";
-import PlatformScreen from "../screens/PlatformScreen";
-
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import HomeScreen from "../screens/HomeScreen";
@@ -31,7 +24,10 @@ import ForgetPasswordScreen from "../screens/ForgetPasswordScreen";
 import ResetPasswordScreen from "../screens/ResetPasswordScreen";
 import InputVerifyCodeScreen from "../screens/InputVerifyCodeScreen";
 
-import { Text } from "../components/Themed";
+import StartScreen from "../screens/StartScreen";
+import BookingScreen from "../screens/BookingScreen";
+import ReserveScreen from "../screens/ReserveScreen";
+import FavoriteScreen from "../screens/FavoriteScreen";
 
 import {
   RootStackParamList,
@@ -42,7 +38,7 @@ import {
 
 import LinkingConfiguration from "./LinkingConfiguration";
 
-const TopTab = createMaterialTopTabNavigator();
+const RootTab = createBottomTabNavigator();
 const AuthStack = createStackNavigator<UserAuthParamList>();
 
 export default function Navigation({
@@ -153,41 +149,59 @@ export default function Navigation({
         theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       >
         {loginState.userToken !== null ? (
-          <TopTab.Navigator
-            initialRouteName="Work"
-            screenOptions={{
-              tabBarActiveTintColor: "#e91e63",
+          <RootTab.Navigator
+            initialRouteName="Home"
+            screenOptions={({ route }) => ({
+              tabBarIcon: ({ focused, color, size }) => {
+                if (route.name === 'Home') {
+                  return (
+                    <Ionicons
+                      name={
+                        focused
+                          ? 'ios-information-circle'
+                          : 'ios-information-circle-outline'
+                      }
+                      size={size}
+                      color={color}
+                    />
+                  );
+                } else if (route.name === 'Settings') {
+                  return (
+                    <Ionicons
+                      name={focused ? 'menu' : 'ios-list'}
+                      size={size}
+                      color={color}
+                    />
+                  );
+                }
+              },
               tabBarInactiveTintColor: "black",
+              tabBarActiveTintColor: 'tomato',
               tabBarLabelStyle: { fontSize: 20 },
               tabBarStyle: { backgroundColor: "white", paddingTop: insets.top },
-            }}
+            })}
           >
-            <TopTab.Screen
-              name="Work"
-              component={WorkScreen}
-              options={{ tabBarLabel: "作品" }}
+            <RootTab.Screen
+              name="Start"
+              component={StartScreen}
+              options={{ tabBarLabel: "Inicio" }}
             />
-            <TopTab.Screen
-              name="User"
-              component={UserScreen}
-              options={{ tabBarLabel: "用户" }}
+            <RootTab.Screen
+              name="Reserve"
+              component={ReserveScreen}
+              options={{ tabBarLabel: "Reservas" }}
             />
-            <TopTab.Screen
-              name="Coin"
-              component={CoinScreen}
-              options={{ tabBarLabel: "硬币" }}
+            <RootTab.Screen
+              name="Booking"
+              component={BookingScreen}
+              options={{ tabBarLabel: "Pedido" }}
             />
-            <TopTab.Screen
-              name="Data"
-              component={DataScreen}
-              options={{ tabBarLabel: "数据" }}
+            <RootTab.Screen
+              name="Favorite"
+              component={FavoriteScreen}
+              options={{ tabBarLabel: "Favoritos" }}
             />
-            <TopTab.Screen
-              name="Platform"
-              component={PlatformScreen}
-              options={{ tabBarLabel: "平台" }}
-            />
-          </TopTab.Navigator>
+          </RootTab.Navigator>
         ) : (
           <AuthStack.Navigator initialRouteName="Home">
             <AuthStack.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />

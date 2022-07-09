@@ -43,7 +43,7 @@ const ForgetPasswordScreen = ({ route, navigation }: HomeScreenProps) => {
               Introduce tu Email para recibir un link para restaurar tu
               contraseña
             </Text>
-            <View style={[styles.inputContainer, {marginTop: 60}]}>
+            <View style={[styles.inputContainer, { marginTop: 60 }]}>
               <Text style={styles.inputPrefix}>{`    `}</Text>
               <TextInput
                 onChangeText={(text) => {
@@ -57,21 +57,26 @@ const ForgetPasswordScreen = ({ route, navigation }: HomeScreenProps) => {
                 placeholderTextColor={"white"}
               />
             </View>
-            <Button
-              mode="contained"
-              onPress={() => {
-                console.log("Sending reset code to email...");
-                Alert.alert("Reset Password", "We have sent a code to you email box, please check it and fill in next page!");
-                navigation.navigate("InputVerifyCodeScreen");
-              }}
-              color={"white"}
-              contentStyle={{ height: 70, width: 350 }}
-              labelStyle={{ fontSize: 22, color: '#C93E54' }}
-              style={[styles.signInButton, { marginTop: 30 }]}
-              uppercase={false}
-            >
-              Enviar
-            </Button>
+            <View style={[styles.inputContainer, { borderWidth: 0 }]}>
+              <Button
+                mode="contained"
+                onPress={() => {
+                  console.log("Sending reset code to email...");
+                  Alert.alert(
+                    "Reset Password",
+                    "We have sent a code to you email box, please check it and fill in next page!"
+                  );
+                  navigation.navigate("InputVerifyCodeScreen");
+                }}
+                color={"white"}
+                contentStyle={{ height: 60, width: "100%" }}
+                labelStyle={{ fontSize: 22, color: "#C93E54" }}
+                style={[styles.signInButton, { marginTop: 30 }]}
+                uppercase={false}
+              >
+                Enviar
+              </Button>
+            </View>
           </View>
         </View>
       </ImageBackground>
@@ -101,9 +106,10 @@ const styles = StyleSheet.create({
   signInButton: {
     marginTop: 20,
     borderRadius: 50,
+    width: '100%',
   },
   input: {
-    width: 280,
+    width: '80%',
     fontSize: 20
   },
   inputContainer: {
@@ -111,11 +117,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 10,
     borderRadius: 50,
-    height: 70,
+    height: 60,
     margin: 6,
     padding: 10,
     fontSize: 20,
-    backgroundColor: "rgba(52, 52, 52, 0.1)",
+    backgroundColor: "rgba(52, 52, 52, 0.0)",
     borderWidth: 2,
     borderColor: 'white',
   },

@@ -40,7 +40,7 @@ const SignUpScreen = ({ route, navigation }: HomeScreenProps) => {
             Registrarse
             </Text>
             <Text style={{ color: "white", fontSize: 18,
-            paddingTop: 5,  width: 250, textAlign: 'center', fontWeight: 'bold'  }}>
+            paddingTop: 5,  marginHorizontal: 60,  textAlign: 'center', fontWeight: 'bold'  }}>
             Fill in the following fields to create a new account
             </Text>
             <View style={styles.inputContainer}>
@@ -121,7 +121,7 @@ const SignUpScreen = ({ route, navigation }: HomeScreenProps) => {
                 // navigation.navigate("SignInScreen");
               }}
               color={"white"}
-              contentStyle={{ height: 70, width: 350 }}
+              contentStyle={{ height: 60, width: 350 }}
               labelStyle={{ fontSize: 22 }}
               style={[styles.signInButton, { marginTop: 30 }]}
               uppercase={false}
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 10,
     borderRadius: 50,
-    height: 70,
+    height: 60,
     margin: 6,
     padding: 10,
     fontSize: 20,
