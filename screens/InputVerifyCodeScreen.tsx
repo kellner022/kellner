@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -15,6 +15,17 @@ const InputVerifyCodeScreen = ({ route, navigation }: HomeScreenProps) => {
   const [code2, setCode2] = React.useState('');
   const [code3, setCode3] = React.useState('');
   const [code4, setCode4] = React.useState('');
+
+  const code1Ref = useRef<TextInput>(null);
+  const code2Ref = useRef<TextInput>(null);
+  const code3Ref = useRef<TextInput>(null);
+  const code4Ref = useRef<TextInput>(null);
+
+  useEffect(() => {
+    setTimeout(async () => {
+      code1Ref.current?.focus();
+    }, 100);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -73,45 +84,66 @@ const InputVerifyCodeScreen = ({ route, navigation }: HomeScreenProps) => {
                 secureTextEntry={true}
                 onChangeText={(text) => {
                   setCode1(text);
+                  console.log("Code 1 finish entering:", text);
+
+                  if (text !== '' && text !== null && text !== undefined) {
+                    code2Ref.current?.focus();
+                  }
+                }}
+                onEndEditing={() => {
+                  console.log("Code 1 finish entering!");
                 }}
                 value={code1}
                 keyboardType={"numeric"}
                 autoComplete={"password"}
                 style={styles.input}
                 maxLength={1}
+                ref={code1Ref}
               />
               <TextInput
                 secureTextEntry={true}
                 onChangeText={(text) => {
                   setCode2(text);
+                  if (text !== '' && text !== null && text !== undefined) {
+                    code3Ref.current?.focus();
+                  }
                 }}
                 value={code2}
                 keyboardType={"numeric"}
                 autoComplete={"password"}
                 style={styles.input}
                 maxLength={1}
+                ref={code2Ref}
               />
               <TextInput
                 secureTextEntry={true}
                 onChangeText={(text) => {
                   setCode3(text);
+                  if (text !== '' && text !== null && text !== undefined) {
+                    code4Ref.current?.focus();
+                  }
                 }}
                 value={code3}
                 keyboardType={"numeric"}
                 autoComplete={"password"}
                 style={styles.input}
                 maxLength={1}
+                ref={code3Ref}
               />
               <TextInput
                 secureTextEntry={true}
                 onChangeText={(text) => {
                   setCode4(text);
+                  if (text !== '' && text !== null && text !== undefined) {
+                    console.log(`Code input completed: ${code1}${code2}${code3}${code4}`);
+                  }
                 }}
                 value={code4}
                 keyboardType={"numeric"}
                 autoComplete={"password"}
                 style={styles.input}
                 maxLength={1}
+                ref={code4Ref}
               />
             </View>
             </View>
@@ -120,7 +152,7 @@ const InputVerifyCodeScreen = ({ route, navigation }: HomeScreenProps) => {
             <Button
               mode="contained"
               onPress={() => {
-                console.log("Verify code ok, jump to reset password page");
+                console.log(`Verify code: ${code1}${code2}${code3}${code4}, jump to reset password page`);
                 navigation.navigate("ResetPasswordScreen");
               }}
               color={"white"}
