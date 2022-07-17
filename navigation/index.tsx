@@ -128,6 +128,8 @@ export default function Navigation({
       userToken = null;
       try {
         // userToken = await AsyncStorage.getItem("userToken");
+        userToken = '1234567890qazxswedcv';
+        console.log('Get user token from local storage: ', userToken);
       } catch (e) {
         console.log(e);
       }
@@ -177,7 +179,7 @@ export default function Navigation({
                 }
               },
               tabBarInactiveTintColor: "black",
-              // tabBarActiveTintColor: 'tomato',
+              tabBarActiveTintColor: 'tomato',
               tabBarLabelStyle: { fontSize: 20 },
               tabBarStyle: { backgroundColor: "white", paddingTop: insets.top },
             })}
@@ -185,27 +187,27 @@ export default function Navigation({
             <RootTab.Screen
               name="Start"
               component={StartScreen}
-              options={{ tabBarLabel: "Inicio" }}
+              options={{ tabBarLabel: "Inicio", headerShown: false  }}
             />
             <RootTab.Screen
               name="Reserve"
               component={ReserveScreen}
-              options={{ tabBarLabel: "Reservas" }}
+              options={{ tabBarLabel: "Reservas", headerShown: false  }}
             />
             <RootTab.Screen
               name="Booking"
               component={OrderScreen}
-              options={{ tabBarLabel: "Pedido" }}
+              options={{ tabBarLabel: "Pedido", headerShown: false  }}
             />
             <RootTab.Screen
               name="Favorite"
               component={FavoriteScreen}
-              options={{ tabBarLabel: "Favoritos" }}
+              options={{ tabBarLabel: "Favoritos", headerShown: false  }}
             />
             <RootTab.Screen
               name="Profile"
               component={ProfileScreen}
-              options={{ tabBarLabel: "Mi perfil" }}
+              options={{ tabBarLabel: "Mi perfil", headerShown: false }}
             />
           </RootTab.Navigator>
         ) : (
