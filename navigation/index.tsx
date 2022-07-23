@@ -16,6 +16,10 @@ import { ActivityIndicator, ColorSchemeName, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../components/Context";
+import {
+  getAuth,
+  onAuthStateChanged,
+} from 'firebase/auth';
 
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
@@ -48,6 +52,8 @@ export default function Navigation({
   colorScheme: ColorSchemeName;
 }) {
   const insets = useSafeAreaInsets();
+
+  const auth = getAuth();
   const initialLoginState = {
     isLoading: true,
     userName: null,
@@ -90,6 +96,13 @@ export default function Navigation({
   );
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
 
+  onAuthStateChanged(auth, (user) => {
+    if (user != null) {
+      console.log("We are authenticated now!");
+    }
+
+    // Do other things
+  });
   const authContext = React.useMemo(
     () => ({
       signIn: async (foundUser: any) => {
@@ -128,7 +141,7 @@ export default function Navigation({
       userToken = null;
       try {
         // userToken = await AsyncStorage.getItem("userToken");
-        userToken = '1234567890qazxswedcv';
+        // userToken = '1234567890qazxswedcv';
         console.log('Get user token from local storage: ', userToken);
       } catch (e) {
         console.log(e);
