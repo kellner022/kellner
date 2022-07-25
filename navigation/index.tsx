@@ -19,6 +19,7 @@ import { AuthContext } from "../components/Context";
 import {
   getAuth,
   onAuthStateChanged,
+  User,
 } from 'firebase/auth';
 
 import SignInScreen from '../screens/SignInScreen';
@@ -52,40 +53,36 @@ export default function Navigation({
   colorScheme: ColorSchemeName;
 }) {
   const insets = useSafeAreaInsets();
-
-  const auth = getAuth();
-  const initialLoginState = {
+  const initialLoginState: {isLoading: boolean, user: User|null} = {
     isLoading: true,
-    userName: null,
-    userToken: null,
+    user: null,
   };
-  const loginReducer = (prevState: any, action: any) => {
+
+  type State = {
+    user?: User|null;
+    isLoading: boolean;
+  };
+
+  type Action =
+    | { type: "LOGIN", user: User|null }
+    | { type: "REGISTER"; user: User|null }
+    | { type: "LOGOUT"; };
+
+  const loginReducer = (prevState: State, action: Action) => {
+    console.log('loginReducer #######');
     switch (action.type) {
-      case "RETRIEVE_TOKEN":
-        return {
-          ...prevState,
-          userToken: action.token,
-          isLoading: false,
-        };
       case "LOGIN":
-        return {
-          ...prevState,
-          userName: action.id,
-          userToken: action.token,
-          isLoading: false,
-        };
-      case "LOGOUT":
-        return {
-          ...prevState,
-          userName: null,
-          userToken: null,
-          isLoading: false,
-        };
       case "REGISTER":
         return {
           ...prevState,
-          userName: action.id,
-          userToken: action.token,
+          user: action.user,
+          isLoading: false,
+        };
+      case "LOGOUT":
+        console.log('In login reducer: prevState', prevState);
+        return {
+          ...prevState,
+          user: null,
           isLoading: false,
         };
     }
@@ -95,14 +92,6 @@ export default function Navigation({
     initialLoginState
   );
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
-
-  onAuthStateChanged(auth, (user) => {
-    if (user != null) {
-      console.log("We are authenticated now!");
-    }
-
-    // Do other things
-  });
   const authContext = React.useMemo(
     () => ({
       signIn: async (foundUser: any) => {
@@ -114,7 +103,7 @@ export default function Navigation({
         } catch (e) {
           console.log(e);
         }
-        dispatch({ type: "LOGIN", id: userName, token: userToken });
+        // dispatch({ type: "LOGIN", id: userName, token: userToken });
       },
       signOut: async () => {
         try {
@@ -136,21 +125,46 @@ export default function Navigation({
   );
 
   useEffect(() => {
-    setTimeout(async () => {
+    setTimeout(() => {
       let userToken;
       userToken = null;
-      try {
-        // userToken = await AsyncStorage.getItem("userToken");
-        // userToken = '1234567890qazxswedcv';
-        console.log('Get user token from local storage: ', userToken);
-      } catch (e) {
-        console.log(e);
-      }
-      dispatch({ type: "RETRIEVE_TOKEN", token: userToken });
+      console.log('Get user token from local storage: ', userToken);
+      dispatch({ type: "LOGOUT" });
     }, 1000);
   }, []);
 
+  // onAuthStateChanged(auth, (user) => {
+  //   console.log('onAuthStateChanged: #########');
+  //   if (user) {
+  //     console.log("We are authenticated now:");
+  //     dispatch({ type: "LOGIN", user: user });
+  //   } else {
+  //     setTimeout(() => {
+  //       console.log("We are signning out now:");
+  //       dispatch({ type: "LOGOUT" });
+  //     }, 500);
+  //   }
+  // });
+
+  const handleAuthStateChanged = (user: any) => {
+    console.log('onAuthStateChanged: #########');
+    if (user) {
+      console.log("We are authenticated now:");
+      dispatch({ type: "LOGIN", user: user });
+    } else {
+      setTimeout(() => {
+        console.log("We are signning out now:");
+        dispatch({ type: "LOGOUT" });
+      }, 500);
+    }
+  };
+
+  useEffect(() => {
+    return getAuth().onAuthStateChanged(handleAuthStateChanged); // unsubscribe on unmount
+  }, []);
+
   if (loginState.isLoading) {
+    console.log('Loading...');
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
@@ -164,7 +178,7 @@ export default function Navigation({
         linking={LinkingConfiguration}
         theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       >
-        {loginState.userToken !== null ? (
+        {loginState.user !== null ? (
           <RootTab.Navigator
             initialRouteName="Home"
             screenOptions={({ route }) => ({
