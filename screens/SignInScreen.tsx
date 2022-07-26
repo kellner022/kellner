@@ -12,12 +12,14 @@ import {
 import { Button } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-
+import { flagAppLoading, flagAppLoaded } from '../data/kellnerSlicer';
+import { useSelector, useDispatch } from 'react-redux';
 import { HomeScreenProps } from "../types";
 
 const SignInScreen = ({ route, navigation }: HomeScreenProps) => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const dispatch = useDispatch();
 
   return (
     <View style={styles.container}>
@@ -78,6 +80,7 @@ const SignInScreen = ({ route, navigation }: HomeScreenProps) => {
                 mode="contained"
                 onPress={() => {
                   console.log("Jumping to Sign In page");
+                  dispatch(flagAppLoading());
                   const auth = getAuth();
                   signInWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
@@ -89,6 +92,7 @@ const SignInScreen = ({ route, navigation }: HomeScreenProps) => {
                       const errorCode = error.code;
                       const errorMessage = error.message;
                       console.error(`Sign in failed: ${errorCode}, ${errorMessage}`);
+                      dispatch(flagAppLoaded());
                       Alert.alert("Sign in failed", errorMessage);
                     });
                 }}

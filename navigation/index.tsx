@@ -12,10 +12,14 @@ import {
   DarkTheme,
 } from "@react-navigation/native";
 import React, { useEffect } from "react";
-import { ActivityIndicator, ColorSchemeName, View } from "react-native";
+import { ActivityIndicator, ColorSchemeName, View, ImageBackground, StyleSheet, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../components/Context";
+
+import type { RootState } from '../data/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { flagAppLoaded, setAuthedUser, clearAuthedUser } from '../data/kellnerSlicer';
 import {
   getAuth,
   onAuthStateChanged,
@@ -53,44 +57,9 @@ export default function Navigation({
   colorScheme: ColorSchemeName;
 }) {
   const insets = useSafeAreaInsets();
-  const initialLoginState: {isLoading: boolean, user: User|null} = {
-    isLoading: true,
-    user: null,
-  };
+  const dispatch = useDispatch();
+  const loginState = useSelector((state: RootState) => state.kellner.loginState)
 
-  type State = {
-    user?: User|null;
-    isLoading: boolean;
-  };
-
-  type Action =
-    | { type: "LOGIN", user: User|null }
-    | { type: "REGISTER"; user: User|null }
-    | { type: "LOGOUT"; };
-
-  const loginReducer = (prevState: State, action: Action) => {
-    console.log('loginReducer #######');
-    switch (action.type) {
-      case "LOGIN":
-      case "REGISTER":
-        return {
-          ...prevState,
-          user: action.user,
-          isLoading: false,
-        };
-      case "LOGOUT":
-        console.log('In login reducer: prevState', prevState);
-        return {
-          ...prevState,
-          user: null,
-          isLoading: false,
-        };
-    }
-  };
-  const [loginState, dispatch] = React.useReducer(
-    loginReducer,
-    initialLoginState
-  );
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
   const authContext = React.useMemo(
     () => ({
@@ -126,36 +95,28 @@ export default function Navigation({
 
   useEffect(() => {
     setTimeout(() => {
-      let userToken;
-      userToken = null;
-      console.log('Get user token from local storage: ', userToken);
-      dispatch({ type: "LOGOUT" });
+      dispatch(flagAppLoaded());
     }, 1000);
   }, []);
 
-  // onAuthStateChanged(auth, (user) => {
-  //   console.log('onAuthStateChanged: #########');
-  //   if (user) {
-  //     console.log("We are authenticated now:");
-  //     dispatch({ type: "LOGIN", user: user });
-  //   } else {
-  //     setTimeout(() => {
-  //       console.log("We are signning out now:");
-  //       dispatch({ type: "LOGOUT" });
-  //     }, 500);
-  //   }
-  // });
 
   const handleAuthStateChanged = (user: any) => {
-    console.log('onAuthStateChanged: #########');
     if (user) {
       console.log("We are authenticated now:");
-      dispatch({ type: "LOGIN", user: user });
+      const authUser = {
+        uid: user.uid,
+        name: user.displayName,
+        phone: user.phoneNumber,
+        email: user.email,
+        verified: user.emailVerified,
+        photo: user.photoURL
+      };
+      dispatch(setAuthedUser(authUser));
+      dispatch(flagAppLoaded());
     } else {
-      setTimeout(() => {
-        console.log("We are signning out now:");
-        dispatch({ type: "LOGOUT" });
-      }, 500);
+      console.log("We are sign out now:");
+      dispatch(clearAuthedUser());
+      dispatch(flagAppLoaded());
     }
   };
 
@@ -166,8 +127,20 @@ export default function Navigation({
   if (loginState.isLoading) {
     console.log('Loading...');
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+      <View style={styles.container}>
+        <ImageBackground
+          source={require("../assets/images/background.png")}
+          resizeMode="repeat"
+          style={styles.image}
+        >
+          <View style={styles.main}>
+            <Image
+              source={require("../assets/images/logo.png")}
+              style={{ width: 230, height: 150, resizeMode: "stretch" }}
+            ></Image>
+            <ActivityIndicator size="large" color="#00ff00" />
+          </View>
+        </ImageBackground>
       </View>
     );
   }
@@ -252,12 +225,19 @@ export default function Navigation({
   );
 }
 
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>["name"];
-  color: string;
-}) {
-  return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
-}
+const styles = StyleSheet.create({
+  image: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#C93E54",
+  },
+  main: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+

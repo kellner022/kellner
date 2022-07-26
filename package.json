@@ -21,6 +21,7 @@
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/native-stack": "^6.1.0",
     "@react-navigation/stack": "^6.2.1",
+    "@reduxjs/toolkit": "^1.8.3",
     "expo": "~45.0.0",
     "expo-asset": "~8.5.0",
     "expo-constants": "~13.1.1",
@@ -43,7 +44,8 @@
     "react-native-screens": "~3.11.1",
     "react-native-tab-view": "^3.1.1",
     "react-native-vector-icons": "^9.1.0",
-    "react-native-web": "0.17.7"
+    "react-native-web": "0.17.7",
+    "react-redux": "^8.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

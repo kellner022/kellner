@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Button } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 import { HomeScreenProps } from "../types";
 
@@ -116,9 +117,17 @@ const SignUpScreen = ({ route, navigation }: HomeScreenProps) => {
             <Button
               mode="contained"
               onPress={() => {
-                console.log("Jumping to Sign In page");
-                Alert.alert("Sign Up", "Sign up succeed, new account created!");
-                // navigation.navigate("SignInScreen");
+                const auth = getAuth();
+                  createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                      const user = userCredential.user;
+                      console.log('Sign up user succeed: ', user);
+                    })
+                    .catch((error) => {
+                      const errorCode = error.code;
+                      const errorMessage = error.message;
+                      console.log(`Sign up user failed: ${errorCode} ${errorMessage}`);
+                    });
               }}
               color={"white"}
               contentStyle={{ height: 60, width: 350 }}
