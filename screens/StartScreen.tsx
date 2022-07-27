@@ -8,8 +8,8 @@ export default function StartScreen({ navigation }: RootTabScreenProps<'TabOne'>
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Start</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabOneScreen.tsx" />
+      {/* <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" /> */}
+      {/* <EditScreenInfo path="/screens/TabOneScreen.tsx" /> */}
     </View>
   );
 }

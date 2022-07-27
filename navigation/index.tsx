@@ -3,9 +3,10 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons, SimpleLineIcons, MaterialIcons } from "@expo/vector-icons";
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Avatar } from 'react-native-paper';
 import {
   NavigationContainer,
   DefaultTheme,
@@ -20,11 +21,7 @@ import { AuthContext } from "../components/Context";
 import type { RootState } from '../data/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { flagAppLoaded, setAuthedUser, clearAuthedUser } from '../data/kellnerSlicer';
-import {
-  getAuth,
-  onAuthStateChanged,
-  User,
-} from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
@@ -161,27 +158,44 @@ export default function Navigation({
                     <Ionicons
                       name={
                         focused
-                          ? 'ios-information-circle'
-                          : 'ios-information-circle-outline'
+                          ? 'md-grid'
+                          : 'md-grid-outline'
                       }
                       size={size}
                       color={color}
                     />
                   );
-                } else if (route.name === 'Settings') {
+                } else if (route.name === 'Reserve') {
                   return (
                     <Ionicons
-                      name={focused ? 'menu' : 'ios-list'}
+                      name={focused ? 'location' : 'location-outline'}
                       size={size}
                       color={color}
                     />
                   );
                 }
+                else if (route.name === 'Booking') {
+                  return ( focused ?
+                    <FontAwesome name="shopping-bag" size={20} color="tomato" /> :
+                    <SimpleLineIcons name="handbag" size={20} color="black" />
+                  );
+                }
+                else if (route.name === 'Favorite') {
+                  return ( focused ?
+                    <MaterialIcons name="favorite" size={20} color="tomato" /> :
+                    <MaterialIcons name="favorite-outline" size={20} color="black" />
+                  );
+                }
+                else if (route.name === 'Profile') {
+                  return (<Avatar.Image size={35} source={{
+                    uri: 'https://media-exp1.licdn.com/dms/image/C4E03AQGikvrZ6BNAOg/profile-displayphoto-shrink_200_200/0/1517479982060?e=1664409600&v=beta&t=t0NW-m5QBiM36xyZFRcas-Vv-6KTUw2KGIl9uZxbc-k'
+                }} />);
+                }
               },
               tabBarInactiveTintColor: "black",
               tabBarActiveTintColor: 'tomato',
-              tabBarLabelStyle: { fontSize: 20 },
-              tabBarStyle: { backgroundColor: "white", paddingTop: insets.top },
+              tabBarLabelStyle: { fontSize: 18, paddingBottom: 10 },
+              tabBarStyle: { backgroundColor: "white", height: '12%' },
             })}
           >
             <RootTab.Screen
