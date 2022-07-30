@@ -13,14 +13,14 @@ import {
   DarkTheme,
 } from "@react-navigation/native";
 import React, { useEffect } from "react";
-import { ActivityIndicator, ColorSchemeName, View, ImageBackground, StyleSheet, Image } from "react-native";
+import { ActivityIndicator, ColorSchemeName, View, Text, ImageBackground, StyleSheet, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../components/Context";
 
 import type { RootState } from '../data/store';
 import { useSelector, useDispatch } from 'react-redux';
-import { flagAppLoaded, setAuthedUser, clearAuthedUser } from '../data/kellnerSlicer';
+import { flagAppLoaded, setAuthedUser, clearAuthedUser, updateFirstSignin } from '../data/kellnerSlicer';
 import { getAuth } from 'firebase/auth';
 
 import SignInScreen from '../screens/SignInScreen';
@@ -30,6 +30,7 @@ import ForgetPasswordScreen from "../screens/ForgetPasswordScreen";
 import ResetPasswordScreen from "../screens/ResetPasswordScreen";
 import InputVerifyCodeScreen from "../screens/InputVerifyCodeScreen";
 
+import WelcomeScreen from "../screens/WelcomeScreen";
 import StartScreen from "../screens/StartScreen";
 import OrderScreen from "../screens/BookingScreen";
 import ReserveScreen from "../screens/ReserveScreen";
@@ -97,7 +98,7 @@ export default function Navigation({
   }, []);
 
 
-  const handleAuthStateChanged = (user: any) => {
+  const handleAuthStateChanged = async (user: any) => {
     if (user) {
       console.log("We are authenticated now:");
       const authUser = {
@@ -110,6 +111,24 @@ export default function Navigation({
       };
       dispatch(setAuthedUser(authUser));
       dispatch(flagAppLoaded());
+
+      const firstSignin = await AsyncStorage.getItem("firstSignin");
+      if (firstSignin) {
+        console.log('Already sign in some times: ', firstSignin);
+        dispatch(updateFirstSignin(false));
+      } else {
+        console.log('This is the first time singn in');
+        dispatch(updateFirstSignin(true));
+        AsyncStorage.setItem("firstSignin", "true")
+          .then((resp) => {
+            console.log("Set firstSignin state succeed!");
+          })
+          .catch((e) => {
+            console.log("Update firstSignin error", e);
+          });
+      }
+
+      dispatch(updateFirstSignin(true)); //For debug only
     } else {
       console.log("We are sign out now:");
       dispatch(clearAuthedUser());
@@ -118,7 +137,7 @@ export default function Navigation({
   };
 
   useEffect(() => {
-    return getAuth().onAuthStateChanged(handleAuthStateChanged); // unsubscribe on unmount
+    return getAuth().onAuthStateChanged(handleAuthStateChanged);
   }, []);
 
   if (loginState.isLoading) {
@@ -142,6 +161,12 @@ export default function Navigation({
     );
   }
 
+  if (loginState.user !== null && loginState.isFirstSignin) {
+    return (
+      <WelcomeScreen />
+    );
+  }
+
   return (
     <AuthContext.Provider value={authContext}>
       <NavigationContainer
@@ -149,89 +174,125 @@ export default function Navigation({
         theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       >
         {loginState.user !== null ? (
-          <RootTab.Navigator
-            initialRouteName="Home"
-            screenOptions={({ route }) => ({
-              tabBarIcon: ({ focused, color, size }) => {
-                if (route.name === 'Start') {
-                  return (
-                    <Ionicons
-                      name={
-                        focused
-                          ? 'md-grid'
-                          : 'md-grid-outline'
-                      }
-                      size={size}
-                      color={color}
-                    />
-                  );
-                } else if (route.name === 'Reserve') {
-                  return (
-                    <Ionicons
-                      name={focused ? 'location' : 'location-outline'}
-                      size={size}
-                      color={color}
-                    />
-                  );
-                }
-                else if (route.name === 'Booking') {
-                  return ( focused ?
-                    <FontAwesome name="shopping-bag" size={20} color="tomato" /> :
-                    <SimpleLineIcons name="handbag" size={20} color="black" />
-                  );
-                }
-                else if (route.name === 'Favorite') {
-                  return ( focused ?
-                    <MaterialIcons name="favorite" size={20} color="tomato" /> :
-                    <MaterialIcons name="favorite-outline" size={20} color="black" />
-                  );
-                }
-                else if (route.name === 'Profile') {
-                  return (<Avatar.Image size={35} source={{
-                    uri: 'https://media-exp1.licdn.com/dms/image/C4E03AQGikvrZ6BNAOg/profile-displayphoto-shrink_200_200/0/1517479982060?e=1664409600&v=beta&t=t0NW-m5QBiM36xyZFRcas-Vv-6KTUw2KGIl9uZxbc-k'
-                }} />);
-                }
-              },
-              tabBarInactiveTintColor: "black",
-              tabBarActiveTintColor: 'tomato',
-              tabBarLabelStyle: { fontSize: 18, paddingBottom: 10 },
-              tabBarStyle: { backgroundColor: "white", height: '12%' },
-            })}
-          >
-            <RootTab.Screen
-              name="Start"
-              component={StartScreen}
-              options={{ tabBarLabel: "Inicio", headerShown: false  }}
-            />
-            <RootTab.Screen
-              name="Reserve"
-              component={ReserveScreen}
-              options={{ tabBarLabel: "Reservas", headerShown: false  }}
-            />
-            <RootTab.Screen
-              name="Booking"
-              component={OrderScreen}
-              options={{ tabBarLabel: "Pedido", headerShown: false  }}
-            />
-            <RootTab.Screen
-              name="Favorite"
-              component={FavoriteScreen}
-              options={{ tabBarLabel: "Favoritos", headerShown: false  }}
-            />
-            <RootTab.Screen
-              name="Profile"
-              component={ProfileScreen}
-              options={{ tabBarLabel: "Mi perfil", headerShown: false }}
-            />
-          </RootTab.Navigator>
+            <RootTab.Navigator
+              initialRouteName="Home"
+              screenOptions={({ route }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                  if (route.name === "Start") {
+                    return (
+                      <Ionicons
+                        name={focused ? "md-grid" : "md-grid-outline"}
+                        size={30}
+                        color={color}
+                      />
+                    );
+                  } else if (route.name === "Reserve") {
+                    return (
+                      <Ionicons
+                        name={focused ? "location" : "location-outline"}
+                        size={30}
+                        color={color}
+                      />
+                    );
+                  } else if (route.name === "Booking") {
+                    return focused ? (
+                      <FontAwesome
+                        name="shopping-bag"
+                        size={30}
+                        color="tomato"
+                      />
+                    ) : (
+                      <SimpleLineIcons name="handbag" size={30} color="black" />
+                    );
+                  } else if (route.name === "Favorite") {
+                    return focused ? (
+                      <MaterialIcons name="favorite" size={30} color="tomato" />
+                    ) : (
+                      <MaterialIcons
+                        name="favorite-outline"
+                        size={30}
+                        color="black"
+                      />
+                    );
+                  } else if (route.name === "Profile") {
+                    return (
+                      <Avatar.Image
+                        size={35}
+                        source={{
+                          uri: "https://media-exp1.licdn.com/dms/image/C4E03AQGikvrZ6BNAOg/profile-displayphoto-shrink_200_200/0/1517479982060?e=1664409600&v=beta&t=t0NW-m5QBiM36xyZFRcas-Vv-6KTUw2KGIl9uZxbc-k",
+                        }}
+                      />
+                    );
+                  }
+                },
+                tabBarInactiveTintColor: "black",
+                tabBarActiveTintColor: "tomato",
+                tabBarLabelStyle: { fontSize: 18, paddingBottom: 10 },
+                tabBarStyle: { backgroundColor: "white", height: "12%" },
+              })}
+            >
+              <RootTab.Screen
+                name="Start"
+                component={StartScreen}
+                options={{ tabBarLabel: "Inicio", headerShown: false }}
+              />
+              <RootTab.Screen
+                name="Reserve"
+                component={ReserveScreen}
+                options={{ tabBarLabel: "Reservas", headerShown: false }}
+              />
+              <RootTab.Screen
+                name="Booking"
+                component={OrderScreen}
+                options={{ tabBarLabel: "Pedido", headerShown: false }}
+              />
+              <RootTab.Screen
+                name="Favorite"
+                component={FavoriteScreen}
+                options={{ tabBarLabel: "Favoritos", headerShown: false }}
+              />
+              <RootTab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{
+                  tabBarLabel: "Mi perfil",
+                  headerShown: false,
+                  tabBarBadge: "2",
+                }}
+              />
+            </RootTab.Navigator>
         ) : (
           <AuthStack.Navigator initialRouteName="Home">
-            <AuthStack.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />
-            <AuthStack.Screen name="SignInScreen" component={SignInScreen} options={{headerShown: false}} />
-            <AuthStack.Screen name="SignUpScreen" component={SignUpScreen} options={{headerShown: false}} />
-            <AuthStack.Screen name="ForgetPasswordScreen" component={ForgetPasswordScreen} options={{headerShown: false}} />
-            <AuthStack.Screen name="InputVerifyCodeScreen" component={InputVerifyCodeScreen} options={{headerShown: false}} />
-            <AuthStack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{headerShown: false}} />
+            <AuthStack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{ headerShown: false }}
+            />
+            <AuthStack.Screen
+              name="SignInScreen"
+              component={SignInScreen}
+              options={{ headerShown: false }}
+            />
+            <AuthStack.Screen
+              name="SignUpScreen"
+              component={SignUpScreen}
+              options={{ headerShown: false }}
+            />
+            <AuthStack.Screen
+              name="ForgetPasswordScreen"
+              component={ForgetPasswordScreen}
+              options={{ headerShown: false }}
+            />
+            <AuthStack.Screen
+              name="InputVerifyCodeScreen"
+              component={InputVerifyCodeScreen}
+              options={{ headerShown: false }}
+            />
+            <AuthStack.Screen
+              name="ResetPasswordScreen"
+              component={ResetPasswordScreen}
+              options={{ headerShown: false }}
+            />
           </AuthStack.Navigator>
         )}
       </NavigationContainer>

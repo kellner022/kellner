@@ -12,6 +12,7 @@ export interface AuthUser {
 
 export interface LoginState {
   isLoading: boolean,
+  isFirstSignin: boolean,
   user: AuthUser|null|undefined,
 }
 
@@ -23,7 +24,8 @@ export interface KellnerState {
 const initialState: KellnerState = {
   loginState: {
     isLoading: true,
-    user: null
+    isFirstSignin: true,
+    user: null,
   },
   otherState: 0
 }
@@ -57,6 +59,9 @@ export const kellnerSlice = createSlice({
     clearAuthedUser: (state) => {
       state.loginState.user = null;
     },
+    updateFirstSignin: (state, action: PayloadAction<boolean>) => {
+      state.loginState.isFirstSignin = action.payload;
+    },
     updateLoginState: (state, action: PayloadAction<LoginState>) => {
       state.loginState = action.payload
     },
@@ -64,6 +69,6 @@ export const kellnerSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { flagAppLoading, flagAppLoaded, setAuthedUser, clearAuthedUser, updateLoginState } = kellnerSlice.actions
+export const { flagAppLoading, flagAppLoaded, setAuthedUser, clearAuthedUser, updateLoginState, updateFirstSignin } = kellnerSlice.actions
 
 export default kellnerSlice.reducer
