@@ -153,11 +153,10 @@ const styles = StyleSheet.create({
     height: '45%',
     width: '100%',
     textAlign: 'center',
-    backgroundColor: '#FCF9F7'
+    backgroundColor: '#FCF9F7',
   },
   title: {
     fontSize: 25,
-    fontWeight: 'bold',
     fontFamily: 'Montserrat-SemiBold',
     color: '#4A4B4D',
     marginTop: 20,
@@ -168,11 +167,12 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 50,
     color: '#7C7D7E',
-    fontSize: 18,
+    fontSize: 15,
     alignItems: 'center',
     textAlign: 'center',
     width: '80%',
     height: '15%',
+    fontFamily: 'Montserrat-SemiBold',
   },
   signInButton: {
     borderRadius: 50,

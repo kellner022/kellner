@@ -4,6 +4,7 @@ import 'react-native-gesture-handler';
 import React from "react";
 import { Provider } from 'react-redux'
 import { initializeApp } from 'firebase/app';
+import { useFonts } from 'expo-font';
 
 // Optionally import the services that you want to use
 //import {...} from "firebase/auth";
@@ -12,7 +13,6 @@ import { initializeApp } from 'firebase/app';
 //import {...} from "firebase/functions";
 //import {...} from "firebase/storage";
 
-import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { store } from './data/store';
@@ -32,10 +32,14 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 
 export default function App() {
-  const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
-  if (!isLoadingComplete) {
+  let [fontsLoaded] = useFonts({
+    'SpaceMono-Regular': require('./assets/fonts/SpaceMono-Regular.ttf'),
+    'Montserrat-SemiBold': require('./assets/fonts/Montserrat-SemiBold.ttf'),
+  });
+
+  if (!fontsLoaded) {
     return null;
   } else {
     return (
