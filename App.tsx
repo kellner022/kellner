@@ -37,6 +37,7 @@ export default function App() {
   let [fontsLoaded] = useFonts({
     'SpaceMono-Regular': require('./assets/fonts/SpaceMono-Regular.ttf'),
     'Montserrat-SemiBold': require('./assets/fonts/Montserrat-SemiBold.ttf'),
+    'Montserrat-Regular': require('./assets/fonts/Montserrat-Regular.ttf'),
   });
 
   if (!fontsLoaded) {

@@ -56,7 +56,7 @@ export default function Navigation({
 }) {
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
-  const loginState = useSelector((state: RootState) => state.kellner.loginState)
+  const loginState = useSelector((state: RootState) => state.kellner.loginState);
 
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
   const authContext = React.useMemo(
@@ -128,7 +128,7 @@ export default function Navigation({
           });
       }
 
-      dispatch(updateFirstSignin(true)); //For debug only
+      // dispatch(updateFirstSignin(true)); //For debug only
     } else {
       console.log("We are sign out now:");
       dispatch(clearAuthedUser());
