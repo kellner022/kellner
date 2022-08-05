@@ -2,9 +2,9 @@ import { StyleSheet } from 'react-native';
 
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+import { RootTabOrderScreenProps } from '../types';
 
-export default function OrderScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+export default function OrderScreen({ route, navigation }: RootTabOrderScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bookings</Text>

@@ -32,7 +32,7 @@ import InputVerifyCodeScreen from "../screens/InputVerifyCodeScreen";
 
 import WelcomeScreen from "../screens/WelcomeScreen";
 import StartScreen from "../screens/StartScreen";
-import OrderScreen from "../screens/BookingScreen";
+import OrderScreen from "../screens/OrderScreen";
 import ReserveScreen from "../screens/ReserveScreen";
 import FavoriteScreen from "../screens/FavoriteScreen";
 import ProfileScreen from "../screens/ProfileScreen";
@@ -194,7 +194,7 @@ export default function Navigation({
                         color={color}
                       />
                     );
-                  } else if (route.name === "Booking") {
+                  } else if (route.name === "Order") {
                     return focused ? (
                       <FontAwesome
                         name="shopping-bag"
@@ -242,7 +242,7 @@ export default function Navigation({
                 options={{ tabBarLabel: "Reservas", headerShown: false }}
               />
               <RootTab.Screen
-                name="Booking"
+                name="Order"
                 component={OrderScreen}
                 options={{ tabBarLabel: "Pedido", headerShown: false }}
               />

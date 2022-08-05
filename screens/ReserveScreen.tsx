@@ -2,9 +2,9 @@ import { StyleSheet } from 'react-native';
 
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+import { RootTabReserveScreenProps } from '../types';
 
-export default function ReserveScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+export default function ReserveScreen({ route, navigation }: RootTabReserveScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Reserve</Text>

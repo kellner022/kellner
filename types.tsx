@@ -25,14 +25,23 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> = Nati
 >;
 
 export type RootTabParamList = {
-  TabOne: undefined;
-  TabTwo: undefined;
+  Start: undefined;
+  Reserve: undefined;
+  Order: undefined;
+  Favorite: undefined;
+  Profile: undefined;
 };
 
-export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
-  BottomTabScreenProps<RootTabParamList, Screen>,
-  NativeStackScreenProps<RootStackParamList>
->;
+// We do not have nested navagator in this tab, so do not need use composite screen props
+// export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
+//   BottomTabScreenProps<RootTabParamList, Screen>,
+//   NativeStackScreenProps<RootStackParamList>
+// >;
+export type RootTabStartScreenProps = NativeStackScreenProps<RootTabParamList, 'Start'>;
+export type RootTabReserveScreenProps = NativeStackScreenProps<RootTabParamList, 'Reserve'>;
+export type RootTabOrderScreenProps = NativeStackScreenProps<RootTabParamList, 'Order'>;
+export type RootTabFavoriteScreenProps = NativeStackScreenProps<RootTabParamList, 'Favorite'>;
+export type RootTabProfileScreenProps = NativeStackScreenProps<RootTabParamList, 'Profile'>;
 
 export type UserAuthParamList = {
   Home: undefined;
@@ -54,3 +63,13 @@ export type SinUpScreenProps = NativeStackScreenProps<UserAuthParamList, 'SignUp
 export type ForgetPasswordScreenProps = NativeStackScreenProps<UserAuthParamList, 'ForgetPasswordScreen'>;
 export type InputVerifyCodeScreenProps = NativeStackScreenProps<UserAuthParamList, 'InputVerifyCodeScreen'>;
 export type ResetPasswordScreenProps = NativeStackScreenProps<UserAuthParamList, 'ResetPasswordScreen'>;
+
+export type StartStackParamList = {
+  StartHomeScreen: undefined;
+  StartRecipeScreen: { id: number } | undefined;
+  StartCommentScreen: {id: number } | undefined;
+};
+
+export type StartHomeScreenProps = NativeStackScreenProps<StartStackParamList, 'StartHomeScreen'>;
+export type StartRecipeScreenProps = NativeStackScreenProps<StartStackParamList, 'StartRecipeScreen'>;
+export type StartCommentScreenProps = NativeStackScreenProps<StartStackParamList, 'StartCommentScreen'>;

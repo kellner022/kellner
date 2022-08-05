@@ -2,9 +2,9 @@ import { StyleSheet } from 'react-native';
 
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+import { RootTabFavoriteScreenProps } from '../types';
 
-export default function FavoriteScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+export default function FavoriteScreen({ route, navigation }: RootTabFavoriteScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Start</Text>
