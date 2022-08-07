@@ -40,7 +40,6 @@ import ProfileScreen from "../screens/ProfileScreen";
 import {
   RootStackParamList,
   RootTabParamList,
-  RootTabScreenProps,
   UserAuthParamList,
 } from "../types";
 
