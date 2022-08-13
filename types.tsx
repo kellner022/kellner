@@ -60,7 +60,13 @@ export type ResetPasswordScreenProps = NativeStackScreenProps<UserAuthParamList,
 
 export type StartStackParamList = {
   StartHomeScreen: undefined;
-  StartRecipeScreen: { id: number|undefined };  //Required parameter
+  StartRecipeScreen: {
+    restaurant_id: number | undefined,
+    restaurant_name: string | undefined,
+    restaurant_logo: string | undefined,
+    restaurant_stars: number | undefined,
+    restaurant_comments_len: number | undefined,
+  };  //Required parameter
   StartCommentScreen: {id: number|undefined };  //Required parameter
 };
 // export type StartHomeScreenProps = NativeStackScreenProps<StartStackParamList, 'StartHomeScreen'>;

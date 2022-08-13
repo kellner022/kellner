@@ -170,7 +170,7 @@ export default function Navigation({
     <AuthContext.Provider value={authContext}>
       <NavigationContainer
         linking={LinkingConfiguration}
-        theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme} //TODO: Fix dark theme later
       >
         {loginState.user !== null ? (
             <RootTab.Navigator
@@ -198,19 +198,19 @@ export default function Navigation({
                       <FontAwesome
                         name="shopping-bag"
                         size={30}
-                        color="tomato"
+                        color={color}
                       />
                     ) : (
                       <SimpleLineIcons name="handbag" size={30} color="black" />
                     );
                   } else if (route.name === "Favorite") {
                     return focused ? (
-                      <MaterialIcons name="favorite" size={30} color="tomato" />
+                      <MaterialIcons name="favorite" size={30} color={color} />
                     ) : (
                       <MaterialIcons
                         name="favorite-outline"
                         size={30}
-                        color="black"
+                        color={color}
                       />
                     );
                   } else if (route.name === "Profile") {
@@ -225,7 +225,7 @@ export default function Navigation({
                   }
                 },
                 tabBarInactiveTintColor: "black",
-                tabBarActiveTintColor: "tomato",
+                tabBarActiveTintColor: "#C93E54",
                 tabBarLabelStyle: { fontSize: 18, paddingBottom: 10 },
                 tabBarStyle: { backgroundColor: "white", height: "12%" },
               })}

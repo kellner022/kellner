@@ -25,3 +25,28 @@ export enum Currency {
   JPY,
   KRW,
 }
+
+
+const currencyText = (currency: Currency): string => {
+  let text = '';
+  switch(currency) {
+    case Currency.AUD:
+    case Currency.HKD:
+    case Currency.USD:
+      text = '$';
+      break;
+    case Currency.EU:
+      text = '€';
+      break;
+    case Currency.RMB:
+    case Currency.JPY:
+      text = '¥';
+      break;
+    default:
+      text = '€';
+  }
+
+  return text;
+};
+
+export { currencyText };
