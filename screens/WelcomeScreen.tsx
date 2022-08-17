@@ -3,6 +3,8 @@ import { useRef, useState, useEffect } from 'react';
 import { Text, View } from '../components/Themed';
 import { Button } from 'react-native-paper';
 import Swiper from 'react-native-swiper';
+import { useDispatch } from 'react-redux';
+import { updateFirstSignin } from '../data/kellnerSlicer';
 
 export default function WelcomeScreen() {
   const swiper = useRef<Swiper>(null);
@@ -19,6 +21,7 @@ export default function WelcomeScreen() {
           content: 'Siéntate. Pide lo que quieras y paga al instante. Sin esperas.',
         }
   ]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setTimeout(() => {
@@ -100,9 +103,13 @@ export default function WelcomeScreen() {
         <Button
           mode="contained"
           onPress={() => {
-            console.log("Next page ...");
             if (swiper.current && currentIndex < (pageContent.length - 1)) {
               swiper.current.scrollBy(1, true);
+              console.log("Next page ...");
+            }
+            else {
+              console.log('Now enter the main view of the app ...');
+              dispatch(updateFirstSignin(false));
             }
 
             // dispatch(flagAppLoading());

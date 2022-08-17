@@ -22,6 +22,7 @@ import type { RootState } from '../data/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { flagAppLoaded, setAuthedUser, clearAuthedUser, updateFirstSignin } from '../data/kellnerSlicer';
 import { getAuth } from 'firebase/auth';
+import User from "../model/users";
 
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
@@ -100,13 +101,14 @@ export default function Navigation({
   const handleAuthStateChanged = async (user: any) => {
     if (user) {
       console.log("We are authenticated now:");
-      const authUser = {
+      const authUser: User = {
+        id: 0, //TODO: using uid as id, change type of number to string
         uid: user.uid,
-        name: user.displayName,
+        display_name: user.displayName,
         phone: user.phoneNumber,
         email: user.email,
         verified: user.emailVerified,
-        photo: user.photoURL
+        avatar: user.photoURL
       };
       dispatch(setAuthedUser(authUser));
       dispatch(flagAppLoaded());

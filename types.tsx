@@ -66,8 +66,13 @@ export type StartStackParamList = {
     restaurant_logo: string | undefined,
     restaurant_stars: number | undefined,
     restaurant_comments_len: number | undefined,
-  };  //Required parameter
-  StartCommentScreen: {id: number|undefined };  //Required parameter
+  };
+  StartCommentScreen: { 
+    restaurant_id: number | undefined,
+    restaurant_name: string | undefined,
+    restaurant_logo: string | undefined,
+    restaurant_stars: number | undefined,
+   };
 };
 // export type StartHomeScreenProps = NativeStackScreenProps<StartStackParamList, 'StartHomeScreen'>;
 // export type StartRecipeScreenProps = NativeStackScreenProps<StartStackParamList, 'StartRecipeScreen'>;

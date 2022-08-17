@@ -1,5 +1,5 @@
-import { StyleSheet, TextInput, Button, Image, ScrollView, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { StyleSheet, TextInput, FlatList, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { useEffect, useState } from 'react';
 import { Text, View } from '../components/Themed';
 import { RootTabStartScreenProps, StartStackParamList, StartScreenProps } from '../types';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,11 +9,13 @@ import { Feather, Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import Swiper from 'react-native-swiper';
 import { Avatar } from 'react-native-paper';
+import { FlatGrid } from 'react-native-super-grid';
 
 import Restaurant from '../model/restaurant';
 import Propaganda from '../model/propaganda';
 import { RouteProp } from '@react-navigation/native';
 import Recipe from '../model/recipe';
+import Comment from '../model/comment';
 import { Currency, currencyText } from '../model/enums';
 
 const StartStack = createStackNavigator<StartStackParamList>();
@@ -112,9 +114,6 @@ const RecipeHeaderRight = (props: {
       alignItems: "center",
       backgroundColor: "#FFFFFF",
       marginRight: 10,
-      // marginLeft: 20,
-      // height: '100%',
-      // width: '100%',
     }}>
       <Feather
         name="search"
@@ -285,7 +284,7 @@ const StartHomeScreen = ({ route, navigation }: StartScreenProps<'StartHomeScree
               color: "black",
             }}
           >
-            {loginState.user?.name ? loginState.user?.name : "Guest"}
+            {loginState.user?.display_name ? loginState.user?.display_name : "Guest"}
           </Text>
         </View>
         <View style={{ backgroundColor: "white" }}>
@@ -418,6 +417,14 @@ const StartHomeScreen = ({ route, navigation }: StartScreenProps<'StartHomeScree
                       <Text style={{ color: "#C93E54" }}>{item.stars}</Text>
                       <Text
                         style={{ marginLeft: 5, color: "#808181" }}
+                        onPress={() => {
+                          navigation.navigate("StartCommentScreen", {
+                            restaurant_id: item.id,
+                            restaurant_name: item.name,
+                            restaurant_logo: item.logo,
+                            restaurant_stars: item.stars,
+                          });
+                        }}
                       >{`(${item.comments.length} valoraciones)`}</Text>
                     </View>
                   </View>
@@ -696,6 +703,115 @@ const enum RecipeTabIndex {
   Beverage,
 }
 
+const RecipeSwipeView = (recipes: Recipe[]) => {
+  return (
+    <View style={styles.swiperWrapperRecipe}>
+      <Swiper
+        style={styles.wrapper}
+        showsButtons={false}
+        loop={true}
+        width={345}
+        height={620}
+        autoplay
+        onIndexChanged={(index: number) => {
+          if (index >= 0) {
+            console.log("Index changed in popular recipe:", index);
+          }
+        }}
+        dot={<View></View>}
+        activeDot={<View></View>}
+      >
+        {recipes.map((item, index) => {
+          return (
+            <View key={`recipe-new-${index}`} style={styles.slide}>
+              <View style={styles.recipeCard}>
+                <View
+                  style={{
+                    width: 52,
+                    height: 30,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#FEAEBB",
+                    borderTopEndRadius: 25,
+                    borderTopStartRadius: 5,
+                    borderBottomStartRadius: 25,
+                    borderBottomEndRadius: 5,
+                    marginRight: 5,
+                    marginLeft: "65%",
+                    marginTop: "5%",
+                  }}
+                >
+                  <MaterialIcons name="favorite" size={20} color="white" />
+                </View>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontFamily: "Montserrat-Regular",
+                    color: "#BE384C",
+                    marginLeft: 10,
+                    marginTop: 45,
+                  }}
+                >
+                  {`${item.price} ${currencyText(item.currency)}`}
+                </Text>
+                <Text
+                  style={{
+                    marginVertical: 5,
+                    fontSize: 20,
+                    fontFamily: "Montserrat-Regular",
+                    marginLeft: 10,
+                  }}
+                >
+                  {item.name}
+                </Text>
+                <Text
+                  style={{
+                    marginVertical: 5,
+                    fontFamily: "Montserrat-Regular",
+                    fontSize: 13,
+                    marginLeft: 10,
+                  }}
+                >
+                  {item.introduction}
+                </Text>
+              </View>
+              <Avatar.Image
+                source={{ uri: item.images.length ? item.images[0] : "" }}
+                size={95}
+                style={{
+                  // width: 110,
+                  // height: 110,
+                  // resizeMode: "stretch",
+                  // borderRadius: 15,
+                  top: -250,
+                  left: -80,
+                }}
+              />
+              {/* <View
+                  style={{
+                    flexDirection: "row",
+                    width: "78%",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Image
+                    source={{ uri: item.images.length ? item.images[0] : "" }}
+                    style={{
+                      width: 110,
+                      height: 110,
+                      resizeMode: "stretch",
+                      borderRadius: 15,
+                    }}
+                  />
+                </View> */}
+            </View>
+          );
+        })}
+      </Swiper>
+    </View>
+  );
+};
+
 const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeScreen'>) => {
   const { restaurant_id }:{restaurant_id: number|undefined} = route.params;
   const insets = useSafeAreaInsets();
@@ -750,7 +866,7 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
   const [activeTab, setActiveTab] = useState<RecipeTabIndex>(RecipeTabIndex.Start);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, height: 850 }]}>
       <View style={styles.topTab}>
         <TouchableOpacity
           style={
@@ -825,178 +941,235 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={{ marginVertical: 10, marginHorizontal: 5 }}>
-        <Text style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}>
-          Populares
-        </Text>
-        <View style={styles.swiperWrapperRecipe}>
-          <Swiper
-            style={styles.wrapper}
-            showsButtons={false}
-            loop={true}
-            width={345}
-            height={620}
-            autoplay
-            onIndexChanged={(index: number) => {
-              if (index >= 0) {
-                console.log("Index changed in popular recipe:", index);
-              }
-            }}
-            dot={<View></View>}
-            activeDot={<View></View>}
-          >
-            {popularRecipes.map((item, index) => {
-              return (
-                <View key={`recipe-new-${index}`} style={styles.slide}>
-                  <View style={styles.recipeCard}>
-                    <View
-                      style={{
-                        width: 52,
-                        height: 30,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#FEAEBB",
-                        borderTopEndRadius: 25,
-                        borderTopStartRadius: 5,
-                        borderBottomStartRadius: 25,
-                        borderBottomEndRadius: 5,
-                        marginRight: 5,
-                        marginLeft: "65%",
-                        marginTop: "5%",
-                      }}
-                    >
-                      <MaterialIcons name="favorite" size={20} color="white" />
-                    </View>
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        fontFamily: "Montserrat-Regular",
-                        color: "#BE384C",
-                        marginLeft: 10,
-                        marginTop: 45,
-                      }}
-                    >
-                      {`${item.price} ${currencyText(item.currency)}`}
-                    </Text>
-                    <Text
-                      style={{
-                        marginVertical: 5,
-                        fontSize: 20,
-                        fontFamily: "Montserrat-Regular",
-                        marginLeft: 10,
-                      }}
-                    >
-                      {item.name}
-                    </Text>
-                    <Text
-                      style={{
-                        marginVertical: 5,
-                        fontFamily: "Montserrat-Regular",
-                        fontSize: 13,
-                        marginLeft: 10,
-                      }}
-                    >
-                      {item.introduction}
-                    </Text>
-                  </View>
-                  <Avatar.Image
-                      source={{ uri: item.images.length ? item.images[0] : "" }}
-                      size={95}
-                      style={{
-                        // width: 110,
-                        // height: 110,
-                        // resizeMode: "stretch",
-                        // borderRadius: 15,
-                        top: -250,
-                        left: -80,
-                      }}
-                    />
-                  {/* <View
-                    style={{
-                      flexDirection: "row",
-                      width: "78%",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Image
-                      source={{ uri: item.images.length ? item.images[0] : "" }}
-                      style={{
-                        width: 110,
-                        height: 110,
-                        resizeMode: "stretch",
-                        borderRadius: 15,
-                      }}
-                    />
-                  </View> */}
-                </View>
-              );
-            })}
-          </Swiper>
+      <ScrollView>
+        <View style={{ marginVertical: 10, marginHorizontal: 5 }}>
+          <Text style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}>
+            Populares
+          </Text>
+          {RecipeSwipeView(popularRecipes)}
         </View>
-      </View>
-      <View style={{ marginVertical: 10, marginHorizontal: 5 }}>
-        <Text style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}>
-          Especial del mes
-        </Text>
-        {/* <Swiper
-          style={styles.wrapper}
-          showsButtons={false}
-          loop={true}
-          width={340}
-          height={620}
-          autoplay
-          onIndexChanged={(index: number) => {
-            console.log("Swiper index changed: ", index);
-            if (index >= 0) {
-              // setCurrentIndex(index);
-            }
-          }}
-          dot={<View></View>}
-          activeDot={<View></View>}
-        >
-          {specialRecipes.map((item, index) => {
-            return (
-              <View key={`restaurant-new-${index}`} style={styles.slide}>
-                <Image
-                  source={{ uri: item.images.length ? item.images[0] : "" }}
+        <View style={{ marginVertical: 10, marginHorizontal: 5 }}>
+          <Text style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}>
+            Especial del mes
+          </Text>
+          {RecipeSwipeView(specialRecipes)}
+        </View>
+        <View style={{ alignItems: "flex-end", marginRight: 10, marginVertical: 10 }}>
+          <TouchableOpacity
+            style={{
+              width: "38%",
+              height: 50,
+              backgroundColor: "#C93E54",
+              alignItems: "center",
+              justifyContent: "center",
+              borderTopEndRadius: 5,
+              borderTopStartRadius: 30,
+              borderBottomStartRadius: 5,
+              borderBottomEndRadius: 30,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                color: "white",
+                fontFamily: "Montserrat-Regular",
+              }}
+            >
+              Ver todos
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+const StartCommentScreen = ({ route, navigation }: StartScreenProps<'StartCommentScreen'>) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const { restaurant_id }:{restaurant_id: number|undefined} = route.params;
+  const insets = useSafeAreaInsets();
+
+  const [authorsInfo, setAuthorsInfo] = useState<{
+    id: number;
+    name: string;
+    reviews: number;
+    followers: number;
+    avatar?: string;
+  }[]>([]);
+
+  const loadAuthorInfo = (commentsToUpdate: Comment[]) => {
+    commentsToUpdate.forEach((comment) => {
+      console.log('Retrive user info for: ', comment.author_id);
+    });
+
+    //TODO: Fetch from server
+    setAuthorsInfo([
+      {
+        id: 1,
+        name: 'Iván Navalón',
+        reviews: 45,
+        followers: 2,
+        avatar: 'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Favatar-ivan.png?alt=media&token=bb104efb-5643-420c-b2d4-3d51409d96af',
+      },
+      {
+        id: 2,
+        name: 'Guillermo Megías',
+        reviews: 5,
+        followers: 10,
+        avatar: 'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Favatar-guillermo.png?alt=media&token=0f58910d-febe-4a73-96a6-199c0ba45c25',
+      }
+    ]);
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      //TODO: Fetch from server
+      const allComments = [
+        {
+          id: 0,
+          author_id: 1,
+          restaurant_id: 0,
+          content: `Me gustó la comida del restaurante. Los platos son atractivos y muy bonitos. Buena comida, espacio lujoso y servicio entusiasta. Volveré enel…`,
+          create_date: new Date("2022-05-17T03:24:00"),
+          update_date: new Date("2022-05-17T03:24:00"),
+          stars: 4.9,
+          images:[
+            'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fcomment-images-1.png?alt=media&token=8b92f38b-d5df-4597-827c-416ab30833c9',
+            'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fcomment-image-2.png?alt=media&token=56d8c97c-016a-47d1-8ca2-95a5c2c09c0c',
+            'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fcomment-image-3.png?alt=media&token=e797fe5e-ac8f-4d54-a9ff-41d4779fd512',
+          ]
+        },
+        {
+          id: 1,
+          author_id: 2,
+          restaurant_id: 1,
+          content: `Me gustó la comida del restaurante. La reserva y la integración con Kellner fue maravillosa. Hicimos la reserva por la app, nos sentarnos en la mesa y pagamos al instante…`,
+          create_date: new Date("2022-05-18T03:24:00"),
+          update_date: new Date("2022-05-18T03:24:00"),
+          stars: 4.9,
+          images: [
+            'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fcomment-image-4.png?alt=media&token=60225c2d-1c41-49a9-a03b-23e4a732fa8e',
+            'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fcomment-image-5.png?alt=media&token=eac9c796-0932-4708-a253-d2da5b932f06',
+          ]
+        },
+      ];
+      setComments(allComments);
+      loadAuthorInfo(allComments);
+    }, 1000);
+  }, []);
+
+  const getAuthor = (id: number) => {
+    return authorsInfo.find(e => e.id === id);
+  };
+
+  return (
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <FlatList
+        data={comments}
+        renderItem={({ item }) => (
+          <View style={{ marginVertical: 10, marginHorizontal: 5 }}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <Avatar.Image
+                size={40}
+                source={
+                  getAuthor(item.author_id)
+                    ? { uri: getAuthor(item.author_id)?.avatar }
+                    : require("../assets/images/icon.png")
+                }
+              />
+              <View>
+                <Text
+                  style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}
+                >
+                  {getAuthor(item.author_id)
+                    ? getAuthor(item.author_id)?.name
+                    : "Guest"}
+                </Text>
+                <Text
                   style={{
-                    width: 250,
-                    height: 120,
-                    resizeMode: "stretch",
-                    borderRadius: 15,
+                    fontFamily: "Montserrat-Regular",
+                    color: "#808181",
                   }}
-                ></Image>
-                <View style={{ backgroundColor: "#FFFFFF" }}>
-                  <Text
-                    style={{
-                      fontSize: 20,
-                      fontFamily: "Montserrat-SemiBold",
-                      color: "#434445",
-                    }}
-                  >
-                    {item.name}
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginTop: 1,
-                      backgroundColor: "#FFFFFF",
-                    }}
-                  >
-                    <Entypo name="star" size={20} color="#C93E54" />
-                    <Text style={{ color: "#C93E54" }}>{item.stars}</Text>
-                    <Text
-                      style={{ marginLeft: 5, color: "#757677" }}
-                    >{`(${item.comments.length} valoraciones)`}</Text>
-                  </View>
-                </View>
+                >{`${getAuthor(item.author_id)?.reviews} valoraciones | ${
+                  getAuthor(item.author_id)?.followers
+                } seguidores`}</Text>
               </View>
-            );
-          })}
-        </Swiper> */}
-      </View>
-      <View style={{ alignItems: "flex-end", marginRight: 10 }}>
+              <TouchableOpacity
+                style={{
+                  borderRadius: 25,
+                  borderWidth: 1,
+                  borderColor: "#C93E54",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "20%",
+                  marginVertical: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 15,
+                    color: "#C93E54",
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >
+                  Seguir
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                marginVertical: 8,
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={{
+                    marginRight: 5,
+                    fontFamily: "Montserrat-Regular",
+                    color: "#808181",
+                  }}
+                >
+                  Valoración
+                </Text>
+                <Entypo name="star" size={22} color="#C93E54" />
+                <Entypo name="star" size={22} color="#C93E54" />
+                <Entypo name="star" size={22} color="#C93E54" />
+                <Entypo name="star" size={22} color="#C93E54" />
+                <Text style={{ color: "#C93E54" }}>{item.stars}</Text>
+              </View>
+              <Text
+                style={{
+                  fontFamily: "Montserrat-Regular",
+                  color: "#808181",
+                }}
+              >
+                Hace 2 días
+              </Text>
+            </View>
+            <Text>{item.content}</Text>
+            <FlatGrid
+              itemDimension={70}
+              keyExtractor={(image, index) => `comment-image-${index}`}
+              data={item.images ? item.images : []}
+              renderItem={(image_uri) => (
+                <Image
+                  source={{uri: image_uri.item}}
+                  style={{ width: 70, height: 70, resizeMode: "stretch" }}
+                />
+              )}
+            />
+          </View>
+        )}
+        keyExtractor={(item) => `comments-${item.id}`}
+      />
+      <View
+        style={{ alignItems: "flex-end", marginRight: 10, marginVertical: 10 }}
+      >
         <TouchableOpacity
           style={{
             width: "38%",
@@ -1017,7 +1190,7 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
               fontFamily: "Montserrat-Regular",
             }}
           >
-            Ver todos
+            Leer todas
           </Text>
         </TouchableOpacity>
       </View>
@@ -1025,9 +1198,71 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
   );
 };
 
-const StartCommentScreen = ({ route, navigation }: StartScreenProps<'StartCommentScreen'>) => {
+const CommentHeaderCenter = (props: {
+  title: string | undefined;
+  logo: string | undefined;
+  stars: number | undefined;
+  navigation: any;
+}) => {
+  const {title, logo, stars, navigation} = props;
+
   return (
-    <View></View>
+    <View style={{ alignItems: "center", backgroundColor: '#C93E54' }}>
+      <Avatar.Image
+        size={35}
+        source={logo ? { uri: logo } : require("../assets/images/icon.png")}
+      />
+      <Text
+        style={{
+          fontSize: 22,
+          fontFamily: "Montserrat-SemiBold",
+          color: 'white',
+          marginVertical: 2
+        }}
+      >
+        {title}
+      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: '#C93E54'
+        }}
+      >
+        <Entypo name="star" size={24} color="white" />
+        <Text style={{ color: "white" }}>{stars}</Text>
+      </View>
+    </View>
+  );
+};
+
+const CommentHeaderLeft = (props: {
+  navigation: any;
+}) => {
+  const {navigation} = props;
+
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: '#C93E54'
+      }}
+    >
+      <AntDesign
+        name="left"
+        size={30}
+        color="white"
+        onPress={() => {
+          console.log("Go back home...");
+          navigation.goBack();
+        }}
+      />
+      <Text style={{
+        color: 'white',
+        fontSize: 20,
+        }}>Volver</Text>
+    </View>
   );
 };
 
@@ -1071,8 +1306,25 @@ export default function StartScreen({ route, navigation }: RootTabStartScreenPro
       <StartStack.Screen
         name="StartCommentScreen"
         component={StartCommentScreen}
-        initialParams={{ id: undefined }}
-        options={{ headerShown: false }}
+        initialParams={{}}
+        options={(recipeScreenProps: {
+          route: RouteProp<StartStackParamList, "StartCommentScreen">;
+          navigation: any;
+        }) => ({
+          headerLeft: (commentHeaderprops) =>
+          CommentHeaderLeft({
+              navigation: navigation,
+            }),
+          title: "",
+          headerTitle: (commentHeaderprops) => CommentHeaderCenter({
+            title: recipeScreenProps.route.params.restaurant_name,
+            logo: recipeScreenProps.route.params.restaurant_logo,
+            stars: recipeScreenProps.route.params.restaurant_stars,
+            navigation: navigation,
+          }),
+          headerStyle: {backgroundColor: '#C93E54', height: 155},
+          headerTitleAlign: 'center',
+        })}
       />
       {/* <StartStack.Screen
         name="StartRecipeSearchScreen"

@@ -1,19 +1,11 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-
-export interface AuthUser {
-  name: string,
-  uid: string,
-  phone: string,
-  email: string,
-  verified: boolean,
-  photo: string,
-}
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import User from '../model/users';
 
 export interface LoginState {
   isLoading: boolean,
   isFirstSignin: boolean,
-  user: AuthUser|null|undefined,
+  user: User|null|undefined,
 }
 
 export interface KellnerState {
@@ -53,7 +45,7 @@ export const kellnerSlice = createSlice({
     flagAppLoaded: (state) => {
       state.loginState.isLoading = false;
     },
-    setAuthedUser: (state, action: PayloadAction<AuthUser>) => {
+    setAuthedUser: (state, action: PayloadAction<User>) => {
       state.loginState.user = action.payload;
     },
     clearAuthedUser: (state) => {
