@@ -1,6 +1,6 @@
+import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import 'react-native-gesture-handler';
 import React from "react";
 import { Provider } from 'react-redux'
 import { initializeApp } from 'firebase/app';

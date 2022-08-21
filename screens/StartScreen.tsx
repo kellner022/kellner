@@ -1,5 +1,5 @@
-import { StyleSheet, TextInput, FlatList, Image, ScrollView, TouchableOpacity } from 'react-native';
-import { useEffect, useState } from 'react';
+import { StyleSheet, SafeAreaView, FlatList, Image, ScrollView, TouchableOpacity, Pressable } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, View } from '../components/Themed';
 import { RootTabStartScreenProps, StartStackParamList, StartScreenProps } from '../types';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,6 +17,9 @@ import { RouteProp } from '@react-navigation/native';
 import Recipe from '../model/recipe';
 import Comment from '../model/comment';
 import { Currency, currencyText } from '../model/enums';
+
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet, { BottomSheetView, BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 const StartStack = createStackNavigator<StartStackParamList>();
 
@@ -515,7 +518,7 @@ const StartHomeScreen = ({ route, navigation }: StartScreenProps<'StartHomeScree
             loop={true}
             width={340}
             height={620}
-            autoplay
+            // autoplay
             onIndexChanged={(index: number) => {
               console.log("Swiper index changed: ", index);
               if (index >= 0) {
@@ -701,18 +704,31 @@ const enum RecipeTabIndex {
   First,
   Second,
   Beverage,
-}
+};
 
-const RecipeSwipeView = (recipes: Recipe[]) => {
+type RecipeSwipeProps = {
+  recipes: Recipe[];
+  recipeCheckoutCaller: (recipe: Recipe) =>  void;
+  bottomSheetOpened: boolean;
+};
+
+const RecipeSwipeView: React.FC<RecipeSwipeProps> = ({
+  recipes,
+  recipeCheckoutCaller,
+  bottomSheetOpened
+}) => {
   return (
-    <View style={styles.swiperWrapperRecipe}>
+    <View style={[styles.swiperWrapperRecipe, {backgroundColor: bottomSheetOpened ? 'grey' : 'white'}]}>
       <Swiper
         style={styles.wrapper}
         showsButtons={false}
+        removeClippedSubviews={false}
+        automaticallyAdjustContentInsets={true}
         loop={true}
-        width={345}
-        height={620}
-        autoplay
+        width={355}
+        height={280}
+        // autoplay
+        // autoplayTimeout={5}
         onIndexChanged={(index: number) => {
           if (index >= 0) {
             console.log("Index changed in popular recipe:", index);
@@ -723,87 +739,71 @@ const RecipeSwipeView = (recipes: Recipe[]) => {
       >
         {recipes.map((item, index) => {
           return (
-            <View key={`recipe-new-${index}`} style={styles.slide}>
-              <View style={styles.recipeCard}>
-                <View
-                  style={{
-                    width: 52,
-                    height: 30,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#FEAEBB",
-                    borderTopEndRadius: 25,
-                    borderTopStartRadius: 5,
-                    borderBottomStartRadius: 25,
-                    borderBottomEndRadius: 5,
-                    marginRight: 5,
-                    marginLeft: "65%",
-                    marginTop: "5%",
-                  }}
-                >
-                  <MaterialIcons name="favorite" size={20} color="white" />
+            <View key={`recipe-new-${index}`} style={[styles.slide, {backgroundColor: bottomSheetOpened ? 'grey' : 'white'}]}>
+              <Pressable onPress={() => {
+                console.log('Recipe clicked: ', item.id);
+                recipeCheckoutCaller(item);
+              }}>
+                <View style={[styles.recipeCard, {backgroundColor: bottomSheetOpened ? 'grey' : 'white'}]}>
+                  <View
+                    style={{
+                      width: 52,
+                      height: 30,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#FEAEBB",
+                      borderTopEndRadius: 25,
+                      borderTopStartRadius: 5,
+                      borderBottomStartRadius: 25,
+                      borderBottomEndRadius: 5,
+                      marginRight: 5,
+                      marginLeft: "65%",
+                      marginTop: "5%",
+                    }}
+                  >
+                    <MaterialIcons name="favorite" size={20} color="white" />
+                  </View>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontFamily: "Montserrat-Regular",
+                      color: "#BE384C",
+                      marginLeft: 10,
+                      marginTop: 45,
+                    }}
+                  >
+                    {`${item.price} ${currencyText(item.currency)}`}
+                  </Text>
+                  <Text
+                    style={{
+                      marginVertical: 5,
+                      fontSize: 20,
+                      fontFamily: "Montserrat-Regular",
+                      marginLeft: 10,
+                    }}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text
+                    style={{
+                      marginVertical: 5,
+                      fontFamily: "Montserrat-Regular",
+                      fontSize: 13,
+                      marginLeft: 10,
+                    }}
+                  >
+                    {item.introduction}
+                  </Text>
                 </View>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontFamily: "Montserrat-Regular",
-                    color: "#BE384C",
-                    marginLeft: 10,
-                    marginTop: 45,
-                  }}
-                >
-                  {`${item.price} ${currencyText(item.currency)}`}
-                </Text>
-                <Text
-                  style={{
-                    marginVertical: 5,
-                    fontSize: 20,
-                    fontFamily: "Montserrat-Regular",
-                    marginLeft: 10,
-                  }}
-                >
-                  {item.name}
-                </Text>
-                <Text
-                  style={{
-                    marginVertical: 5,
-                    fontFamily: "Montserrat-Regular",
-                    fontSize: 13,
-                    marginLeft: 10,
-                  }}
-                >
-                  {item.introduction}
-                </Text>
-              </View>
+              </Pressable>
               <Avatar.Image
                 source={{ uri: item.images.length ? item.images[0] : "" }}
                 size={95}
                 style={{
-                  // width: 110,
-                  // height: 110,
-                  // resizeMode: "stretch",
-                  // borderRadius: 15,
                   top: -250,
                   left: -80,
                 }}
               />
-              {/* <View
-                  style={{
-                    flexDirection: "row",
-                    width: "78%",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Image
-                    source={{ uri: item.images.length ? item.images[0] : "" }}
-                    style={{
-                      width: 110,
-                      height: 110,
-                      resizeMode: "stretch",
-                      borderRadius: 15,
-                    }}
-                  />
-                </View> */}
             </View>
           );
         })}
@@ -864,123 +864,219 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
     }
   ]);
   const [activeTab, setActiveTab] = useState<RecipeTabIndex>(RecipeTabIndex.Start);
+  const snapPoints = ['60%', '90%'];
+  const sheetRef = useRef<BottomSheet>(null);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [checkoutRecipe, setCheckoutRecipe] = useState<Recipe>();
+
+  const recipeCheckoutCaller = useCallback((item: Recipe) => {
+    console.log('Check out recipe:', item);
+    if (item) {
+      setCheckoutRecipe(item);
+      sheetRef.current?.snapToIndex(0);
+      setIsOpen(true);
+    }
+
+  }, []);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, height: 850 }]}>
-      <View style={styles.topTab}>
-        <TouchableOpacity
-          style={
-            activeTab === RecipeTabIndex.Start
-              ? styles.topTabItemActive
-              : styles.topTabItemInactive
-          }
-          onPress={() => setActiveTab(RecipeTabIndex.Start)}
+    <GestureHandlerRootView>
+      <SafeAreaView
+        style={{
+          height: "100%",
+        }}
+      >
+        <View
+          style={{
+            paddingTop: insets.top,
+          }}
         >
-          <Text
-            style={
-              activeTab === RecipeTabIndex.Start
-                ? styles.topTabItemTextActive
-                : styles.topTabItemTextInactive
-            }
+          <View
+            style={[
+              styles.topTab,
+            ]}
           >
-            Entrantes
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={
-            activeTab === RecipeTabIndex.First
-              ? styles.topTabItemActive
-              : styles.topTabItemInactive
-          }
-          onPress={() => setActiveTab(RecipeTabIndex.First)}
-        >
-          <Text
-            style={
-              activeTab === RecipeTabIndex.First
-                ? styles.topTabItemTextActive
-                : styles.topTabItemTextInactive
-            }
-          >
-            Primeros
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={
-            activeTab === RecipeTabIndex.Second
-              ? styles.topTabItemActive
-              : styles.topTabItemInactive
-          }
-          onPress={() => setActiveTab(RecipeTabIndex.Second)}
-        >
-          <Text
-            style={
-              activeTab === RecipeTabIndex.Second
-                ? styles.topTabItemTextActive
-                : styles.topTabItemTextInactive
-            }
-          >
-            Segundos
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={
-            activeTab === RecipeTabIndex.Beverage
-              ? styles.topTabItemActive
-              : styles.topTabItemInactive
-          }
-          onPress={() => setActiveTab(RecipeTabIndex.Beverage)}
-        >
-          <Text
-            style={
-              activeTab === RecipeTabIndex.Beverage
-                ? styles.topTabItemTextActive
-                : styles.topTabItemTextInactive
-            }
-          >
-            Bebidas
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <ScrollView>
-        <View style={{ marginVertical: 10, marginHorizontal: 5 }}>
-          <Text style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}>
-            Populares
-          </Text>
-          {RecipeSwipeView(popularRecipes)}
-        </View>
-        <View style={{ marginVertical: 10, marginHorizontal: 5 }}>
-          <Text style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}>
-            Especial del mes
-          </Text>
-          {RecipeSwipeView(specialRecipes)}
-        </View>
-        <View style={{ alignItems: "flex-end", marginRight: 10, marginVertical: 10 }}>
-          <TouchableOpacity
-            style={{
-              width: "38%",
-              height: 50,
-              backgroundColor: "#C93E54",
-              alignItems: "center",
-              justifyContent: "center",
-              borderTopEndRadius: 5,
-              borderTopStartRadius: 30,
-              borderBottomStartRadius: 5,
-              borderBottomEndRadius: 30,
-            }}
-          >
-            <Text
+            <TouchableOpacity
+              style={
+                activeTab === RecipeTabIndex.Start
+                  ? styles.topTabItemActive
+                  : styles.topTabItemInactive
+              }
+              onPress={() => setActiveTab(RecipeTabIndex.Start)}
+            >
+              <Text
+                style={
+                  activeTab === RecipeTabIndex.Start
+                    ? styles.topTabItemTextActive
+                    : styles.topTabItemTextInactive
+                }
+              >
+                Entrantes
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={
+                activeTab === RecipeTabIndex.First
+                  ? styles.topTabItemActive
+                  : styles.topTabItemInactive
+              }
+              onPress={() => setActiveTab(RecipeTabIndex.First)}
+            >
+              <Text
+                style={
+                  activeTab === RecipeTabIndex.First
+                    ? styles.topTabItemTextActive
+                    : styles.topTabItemTextInactive
+                }
+              >
+                Primeros
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={
+                activeTab === RecipeTabIndex.Second
+                  ? styles.topTabItemActive
+                  : styles.topTabItemInactive
+              }
+              onPress={() => setActiveTab(RecipeTabIndex.Second)}
+            >
+              <Text
+                style={
+                  activeTab === RecipeTabIndex.Second
+                    ? styles.topTabItemTextActive
+                    : styles.topTabItemTextInactive
+                }
+              >
+                Segundos
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={
+                activeTab === RecipeTabIndex.Beverage
+                  ? styles.topTabItemActive
+                  : styles.topTabItemInactive
+              }
+              onPress={() => setActiveTab(RecipeTabIndex.Beverage)}
+            >
+              <Text
+                style={
+                  activeTab === RecipeTabIndex.Beverage
+                    ? styles.topTabItemTextActive
+                    : styles.topTabItemTextInactive
+                }
+              >
+                Bebidas
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView>
+            <View
               style={{
-                fontSize: 20,
-                color: "white",
-                fontFamily: "Montserrat-Regular",
+                marginVertical: 10,
+                marginHorizontal: 5,
               }}
             >
-              Ver todos
-            </Text>
-          </TouchableOpacity>
+              <Text style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}>
+                Populares
+              </Text>
+              <RecipeSwipeView
+                recipes={popularRecipes}
+                recipeCheckoutCaller={recipeCheckoutCaller}
+                bottomSheetOpened={false}
+              />
+            </View>
+            <View
+              style={{
+                marginVertical: 10,
+                marginHorizontal: 5,
+              }}
+            >
+              <Text style={{ fontSize: 20, fontFamily: "Montserrat-Regular" }}>
+                Especial del mes
+              </Text>
+              <RecipeSwipeView
+                recipes={specialRecipes}
+                recipeCheckoutCaller={recipeCheckoutCaller}
+                bottomSheetOpened={false}
+              />
+            </View>
+            <View
+              style={{
+                alignItems: "flex-end",
+                marginHorizontal: 10,
+                marginVertical: 10,
+                height: 220,
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  width: "38%",
+                  height: 50,
+                  backgroundColor: "#C93E54",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderTopEndRadius: 5,
+                  borderTopStartRadius: 30,
+                  borderBottomStartRadius: 5,
+                  borderBottomEndRadius: 30,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: "white",
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >
+                  Ver todos
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
-      </ScrollView>
-    </View>
+        <BottomSheet
+          ref={sheetRef}
+          snapPoints={snapPoints}
+          enablePanDownToClose={true}
+          onClose={() => setIsOpen(false)}
+          index={-1}
+          style={isOpen ? {
+            backgroundColor : "black",
+            borderRadius: 15,
+            shadowColor: "grey",
+            shadowOffset: {
+              width: -8,
+              height: -5,
+            },
+            shadowOpacity: 0.56,
+            shadowRadius: 15,
+            elevation: 1,
+          } : {}}
+          handleIndicatorStyle={{ backgroundColor: "#B63749" }}
+          handleStyle={
+            {
+              // backgroundColor: "yellow",
+              // borderRadius: 15,
+              // shadowColor: "#000",
+              // shadowOffset: {
+              //   width: -8,
+              //   height: -5,
+              // },
+              // shadowOpacity: 0.84,
+              // shadowRadius: 5.32,
+              // elevation: 17,
+            }
+          }
+        >
+          <BottomSheetView>
+            <View style={{ backgroundColor: "green", height: "100%" }}>
+              <Text>{checkoutRecipe ? checkoutRecipe.name : "NA"}</Text>
+              <Text>{isOpen ? "Sheet opened" : "false"}</Text>
+            </View>
+          </BottomSheetView>
+        </BottomSheet>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 };
 
@@ -1353,7 +1449,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   popularRestaurant: {
-    backgroundColor: "#FFFFFF",
+    // backgroundColor: "#FFFFFF",
   },
   propagandaMid: {
     marginTop: 20,
@@ -1371,7 +1467,6 @@ const styles = StyleSheet.create({
     width: '68%',
   },
   wrapper: {
-    backgroundColor: "#FFFFFF",
   },
   slide: {
     flex: 1,
@@ -1389,7 +1484,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5.32,
     borderRadius: 15,
     height: 220,
-    width: '70%',
+    width: '75%',
     elevation: 7,
   },
   goBackPreBuy: {
@@ -1430,7 +1525,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
   },
   topTabItemActive: {
     width: 92,
