@@ -11,6 +11,7 @@ import Swiper from 'react-native-swiper';
 import { Avatar } from 'react-native-paper';
 import { FlatGrid } from 'react-native-super-grid';
 import Toast from 'react-native-root-toast';
+import { SheetManager } from "react-native-actions-sheet";
 
 import Restaurant from '../model/restaurant';
 import Propaganda from '../model/propaganda';
@@ -1126,8 +1127,13 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
                   flexDirection: "row",
                 }}
               >
-                <Ionicons name="md-share-outline" size={25} color="black" />
-                <MaterialIcons name="favorite" size={25} color="white" />
+                <Ionicons name="md-share-outline" size={25} color="black" onPress={() => {
+                  console.log('To share this recipe...');
+                  SheetManager.show("recipe-share-sheet");
+                }} />
+                <MaterialIcons name="favorite" size={25} color="white" onPress={() => {
+                  console.log('To add this recipe to favorite');
+                }} />
               </View>
               <View style={{ flex: 1 }}>
                 {Platform.OS === "ios" ? (
@@ -1272,7 +1278,8 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
                 borderBottomStartRadius: 35,
                 borderBottomEndRadius: 20,
               }}
-            ></View>
+            >
+            </View>
             <View
               style={{
                 flexDirection: "row",

@@ -6,6 +6,8 @@ import { Provider } from 'react-redux'
 import { initializeApp } from 'firebase/app';
 import { useFonts } from 'expo-font';
 import { RootSiblingParent } from 'react-native-root-siblings';
+import { SheetProvider } from "react-native-actions-sheet";
+import './components/Sheets';
 
 // Optionally import the services that you want to use
 //import {...} from "firebase/auth";
@@ -48,8 +50,10 @@ export default function App() {
       <Provider store={store}>
         <SafeAreaProvider>
           <RootSiblingParent>
-            <Navigation colorScheme={colorScheme} />
-            <StatusBar />
+            <SheetProvider>
+              <Navigation colorScheme={colorScheme} />
+              <StatusBar />
+            </SheetProvider>
           </RootSiblingParent>
         </SafeAreaProvider>
       </Provider>
