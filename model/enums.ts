@@ -27,7 +27,7 @@ export enum Currency {
 }
 
 
-const currencyText = (currency: Currency): string => {
+const currencyText = (currency: Currency|undefined): string => {
   let text = '';
   switch(currency) {
     case Currency.AUD:

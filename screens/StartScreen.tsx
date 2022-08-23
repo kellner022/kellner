@@ -1,15 +1,16 @@
-import { StyleSheet, SafeAreaView, FlatList, Image, ScrollView, TouchableOpacity, Pressable } from 'react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, SafeAreaView, FlatList, Image, ScrollView, Pressable, Platform } from 'react-native';
+import { useCallback, useEffect, useRef, useState, useReducer } from 'react';
 import { Text, View } from '../components/Themed';
 import { RootTabStartScreenProps, StartStackParamList, StartScreenProps } from '../types';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { RootState } from '../data/store';
-import { useSelector } from 'react-redux';
-import { Feather, Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
+import { useSelector, useDispatch } from 'react-redux';
+import { Feather, Entypo, MaterialIcons, AntDesign, Ionicons } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import Swiper from 'react-native-swiper';
 import { Avatar } from 'react-native-paper';
 import { FlatGrid } from 'react-native-super-grid';
+import Toast from 'react-native-root-toast';
 
 import Restaurant from '../model/restaurant';
 import Propaganda from '../model/propaganda';
@@ -17,9 +18,11 @@ import { RouteProp } from '@react-navigation/native';
 import Recipe from '../model/recipe';
 import Comment from '../model/comment';
 import { Currency, currencyText } from '../model/enums';
+import { RecipeItem } from '../model/order';
+import { addRecipeToOrder } from '../data/kellnerSlicer';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetView, BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetView, TouchableOpacity } from "@gorhom/bottom-sheet";
 
 const StartStack = createStackNavigator<StartStackParamList>();
 
@@ -704,7 +707,7 @@ const enum RecipeTabIndex {
   First,
   Second,
   Beverage,
-};
+}
 
 type RecipeSwipeProps = {
   recipes: Recipe[];
@@ -741,7 +744,6 @@ const RecipeSwipeView: React.FC<RecipeSwipeProps> = ({
           return (
             <View key={`recipe-new-${index}`} style={[styles.slide, {backgroundColor: bottomSheetOpened ? 'grey' : 'white'}]}>
               <Pressable onPress={() => {
-                console.log('Recipe clicked: ', item.id);
                 recipeCheckoutCaller(item);
               }}>
                 <View style={[styles.recipeCard, {backgroundColor: bottomSheetOpened ? 'grey' : 'white'}]}>
@@ -812,6 +814,16 @@ const RecipeSwipeView: React.FC<RecipeSwipeProps> = ({
   );
 };
 
+const RecipeImageSlideShow: React.FC<{image: string|undefined, imageClickCaller: () => void}> = ({image, imageClickCaller}) => {
+  return ( image ?
+    <View style={{ alignItems: "center", justifyContent: "center" }}>
+      <Pressable onPress={imageClickCaller}>
+        <Avatar.Image source={{ uri: image }} size={200} />
+      </Pressable>
+    </View> : null
+  );
+};
+
 const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeScreen'>) => {
   const { restaurant_id }:{restaurant_id: number|undefined} = route.params;
   const insets = useSafeAreaInsets();
@@ -821,6 +833,7 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
       name: "Hamburguesa pollo",
       images: [
         "https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fkellner-test-recipe-1.png?alt=media&token=efece233-2284-4c4e-accd-8eb4b83bfca0",
+        "https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fkellner-test-recipe-2.png?alt=media&token=e207c83e-f003-40ef-bfa1-f224551ce31e",
       ],
       price: 30.15,
       currency: Currency.EU,
@@ -864,20 +877,52 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
     }
   ]);
   const [activeTab, setActiveTab] = useState<RecipeTabIndex>(RecipeTabIndex.Start);
-  const snapPoints = ['60%', '90%'];
+  const snapPoints = ['95%'];
   const sheetRef = useRef<BottomSheet>(null);
+  const swiperRef = useRef<Swiper>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [checkoutRecipe, setCheckoutRecipe] = useState<Recipe>();
+  const [checkoutRecipeQuantity, setCheckoutRecipeQuantity] = useState<number>(1);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timer>();
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const dispatch = useDispatch();
 
-  const recipeCheckoutCaller = useCallback((item: Recipe) => {
-    console.log('Check out recipe:', item);
+  const recipeImageClickCaller = () => {
+    if (!checkoutRecipe) {
+      return;
+    }
+
+    setCurrentIndex((preIndex) => {
+      let newIndex = preIndex + 1;
+      if (newIndex >= checkoutRecipe.images.length) {
+        newIndex = 0;
+      }
+      return newIndex;
+    });
+  };
+
+  const recipeCheckoutCaller = (item: Recipe) => {
     if (item) {
+      setCurrentIndex(0);
       setCheckoutRecipe(item);
       sheetRef.current?.snapToIndex(0);
       setIsOpen(true);
-    }
 
-  }, []);
+      if (item) {
+        const id = setInterval(() => {
+          setCurrentIndex(preIndex => {
+            let newIndex = preIndex + 1;
+            if (newIndex >= item.images.length) {
+              newIndex = 0;
+            }
+            return newIndex;
+          });
+        }, 3000);
+
+        setIntervalId(id);
+      }
+    }
+  };
 
   return (
     <GestureHandlerRootView>
@@ -891,11 +936,7 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
             paddingTop: insets.top,
           }}
         >
-          <View
-            style={[
-              styles.topTab,
-            ]}
-          >
+          <View style={[styles.topTab]}>
             <TouchableOpacity
               style={
                 activeTab === RecipeTabIndex.Start
@@ -1038,40 +1079,328 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
           ref={sheetRef}
           snapPoints={snapPoints}
           enablePanDownToClose={true}
-          onClose={() => setIsOpen(false)}
-          index={-1}
-          style={isOpen ? {
-            backgroundColor : "black",
-            borderRadius: 15,
-            shadowColor: "grey",
-            shadowOffset: {
-              width: -8,
-              height: -5,
-            },
-            shadowOpacity: 0.56,
-            shadowRadius: 15,
-            elevation: 1,
-          } : {}}
-          handleIndicatorStyle={{ backgroundColor: "#B63749" }}
-          handleStyle={
-            {
-              // backgroundColor: "yellow",
-              // borderRadius: 15,
-              // shadowColor: "#000",
-              // shadowOffset: {
-              //   width: -8,
-              //   height: -5,
-              // },
-              // shadowOpacity: 0.84,
-              // shadowRadius: 5.32,
-              // elevation: 17,
+          overDragResistanceFactor={0}
+          onClose={() => {
+            setIsOpen(false);
+            if (intervalId) {
+              clearInterval(intervalId);
             }
+          }}
+          index={-1}
+          style={
+            isOpen
+              ? {
+                  backgroundColor: "black",
+                  borderRadius: 15,
+                  shadowColor: "grey",
+                  shadowOffset: {
+                    width: -8,
+                    height: -5,
+                  },
+                  shadowOpacity: 0.56,
+                  shadowRadius: 15,
+                  elevation: 1,
+                }
+              : {}
           }
+          handleIndicatorStyle={{ backgroundColor: "#B63749" }}
         >
-          <BottomSheetView>
-            <View style={{ backgroundColor: "green", height: "100%" }}>
-              <Text>{checkoutRecipe ? checkoutRecipe.name : "NA"}</Text>
-              <Text>{isOpen ? "Sheet opened" : "false"}</Text>
+          <BottomSheetView
+            style={{ backgroundColor: "#FEAEBB", height: "100%" }}
+          >
+            <View style={{ height: "70%" }}>
+              <View
+                style={{
+                  width: 102,
+                  height: 50,
+                  alignItems: "center",
+                  justifyContent: "space-evenly",
+                  backgroundColor: "#FEAEBB",
+                  borderTopEndRadius: 25,
+                  borderTopStartRadius: 5,
+                  borderBottomStartRadius: 25,
+                  borderBottomEndRadius: 5,
+                  marginRight: 5,
+                  marginLeft: "65%",
+                  marginTop: "5%",
+                  flexDirection: "row",
+                }}
+              >
+                <Ionicons name="md-share-outline" size={25} color="black" />
+                <MaterialIcons name="favorite" size={25} color="white" />
+              </View>
+              <View style={{ flex: 1 }}>
+                {Platform.OS === "ios" ? (
+                  <Swiper
+                    ref={swiperRef}
+                    style={{}}
+                    height={220}
+                    onIndexChanged={(index) => {
+                      console.log("Recipe index changed to:", index);
+                    }}
+                    dot={
+                      <View
+                        style={{
+                          backgroundColor: "#E7B3B9",
+                          width: 10,
+                          height: 10,
+                          borderRadius: 7,
+                          marginLeft: 7,
+                          marginRight: 7,
+                          top: 18,
+                        }}
+                      />
+                    }
+                    activeDot={
+                      <View
+                        style={{
+                          backgroundColor: "#BE384C",
+                          width: 10,
+                          height: 10,
+                          borderRadius: 7,
+                          marginLeft: 7,
+                          marginRight: 7,
+                          top: 18,
+                        }}
+                      />
+                    }
+                    loop={false}
+                  >
+                    {checkoutRecipe ? (
+                      checkoutRecipe.images.map((image, index) => {
+                        return (
+                          <View
+                            key={`recipe-image-${index}`}
+                            style={{
+                              // flex: 1,
+                              backgroundColor: "transparent",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              height: 265,
+                            }}
+                          >
+                            <Avatar.Image source={{ uri: image }} size={200} />
+                          </View>
+                        );
+                      })
+                    ) : (
+                      <View></View>
+                    )}
+                  </Swiper>
+                ) : (
+                  <View style={{ backgroundColor: "ios" }}>
+                    <RecipeImageSlideShow
+                      image={checkoutRecipe?.images[currentIndex]}
+                      imageClickCaller={recipeImageClickCaller}
+                    />
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginTop: 10,
+                      }}
+                    >
+                      {checkoutRecipe?.images.map((item, index) => {
+                        return (
+                          <View
+                            key={`recipe-image-dot-${index}`}
+                            style={{
+                              backgroundColor:
+                                index === currentIndex ? "#BE384C" : "#E7B3B9",
+                              width: 10,
+                              height: 10,
+                              borderRadius: 7,
+                              marginLeft: 7,
+                              marginRight: 7,
+                            }}
+                          />
+                        );
+                      })}
+                    </View>
+                  </View>
+                )}
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontFamily: "Montserrat-Regular",
+                    color: "#BE384C",
+                    marginLeft: 10,
+                    // marginTop: 50,
+                  }}
+                >
+                  {`${checkoutRecipe?.price} ${currencyText(
+                    checkoutRecipe?.currency
+                  )}`}
+                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <View>
+                    <Text
+                      style={{ fontFamily: "Montserrat-Regular", fontSize: 25, color: '#333333' }}
+                    >
+                      {checkoutRecipe?.name}
+                    </Text>
+                    <View style={{ flexDirection: "row" }}>
+                      <Entypo name="star" size={12} color="#C93E54" />
+                      <Entypo name="star" size={12} color="#C93E54" />
+                      <Entypo name="star" size={12} color="#C93E54" />
+                      <Entypo name="star" size={12} color="#C93E54" />
+                      <Text
+                        style={{
+                          fontFamily: "Montserrat-Regular",
+                          fontSize: 12,
+                        }}
+                      >{`122 valoraciones`}</Text>
+                    </View>
+                    <Text style={{ color: '#595959' }}>{checkoutRecipe?.introduction}</Text>
+                  </View>
+                  <View style={{ alignItems: "center" }}>
+                    <Entypo name="circle-with-minus" size={24} color="red" />
+                    <Text style={{ color: '#595959' }}>Alérgenos</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+            <View
+              style={{
+                height: 35,
+                borderBottomStartRadius: 35,
+                borderBottomEndRadius: 20,
+              }}
+            ></View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                backgroundColor: "transparent",
+                marginVertical: 10,
+              }}
+            >
+              <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 25, color: '#595959' }}>
+                Cantidad
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  backgroundColor: "transparent",
+                  width: "35%",
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    setCheckoutRecipeQuantity((prev) => {
+                      let newVal = prev - 1;
+                      if (newVal < 1) {
+                        newVal = 1;
+                      }
+                      return newVal;
+                    });
+                  }}
+                >
+                  <View
+                    style={{
+                      height: 35,
+                      width: 35,
+                      borderRadius: 17.5,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text
+                      style={{ fontFamily: "Montserrat-Regular", fontSize: 20, color: '#BE384C' }}
+                    >
+                      -
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <Text
+                  style={{ fontFamily: "Montserrat-Regular", fontSize: 20 }}
+                >
+                  {checkoutRecipeQuantity}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setCheckoutRecipeQuantity((prev) => prev + 1);
+                  }}
+                >
+                  <View
+                    style={{
+                      height: 35,
+                      width: 35,
+                      borderRadius: 17.5,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text
+                      style={{ fontFamily: "Montserrat-Regular", fontSize: 20, color: '#BE384C' }}
+                    >
+                      +
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View
+              style={{
+                alignItems: "flex-end",
+                marginHorizontal: 10,
+                marginVertical: 10,
+                height: 230,
+                backgroundColor: "transparent",
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  console.log("Add recipe to order ...");
+                  if (!checkoutRecipe) {
+                    return;
+                  }
+
+                  const newRecipeItem: RecipeItem = {
+                    restaurant_id: checkoutRecipe.restaurant_id,
+                    recipe_id: checkoutRecipe.id,
+                    quantity: checkoutRecipeQuantity,
+                  };
+
+                  //TODO: 1, Qty reflects the previous one (from the order state in the redux state),
+                  //      2, use updataRecipeToOrder to add the recipe item (or update it if already added one)
+                  dispatch(addRecipeToOrder(newRecipeItem));
+                  Toast.show("añadir al pedido ¡éxito!", {
+                    duration: Toast.durations.LONG,
+                  });
+                  // sheetRef.current?.close();
+                }}
+              >
+                <View style={{
+                  width: 220,
+                  height: 50,
+                  backgroundColor: "#C93E54",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderTopEndRadius: 5,
+                  borderTopStartRadius: 30,
+                  borderBottomStartRadius: 5,
+                  borderBottomEndRadius: 30,
+                }}>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: "white",
+                      fontFamily: "Montserrat-Regular",
+                    }}
+                  >
+                    Añadir a mi pedido
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
           </BottomSheetView>
         </BottomSheet>

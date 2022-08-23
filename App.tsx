@@ -5,6 +5,7 @@ import React from "react";
 import { Provider } from 'react-redux'
 import { initializeApp } from 'firebase/app';
 import { useFonts } from 'expo-font';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 // Optionally import the services that you want to use
 //import {...} from "firebase/auth";
@@ -46,8 +47,10 @@ export default function App() {
     return (
       <Provider store={store}>
         <SafeAreaProvider>
+          <RootSiblingParent>
             <Navigation colorScheme={colorScheme} />
             <StatusBar />
+          </RootSiblingParent>
         </SafeAreaProvider>
       </Provider>
     );
