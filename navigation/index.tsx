@@ -57,6 +57,7 @@ export default function Navigation({
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const loginState = useSelector((state: RootState) => state.kellner.loginState);
+  const orders = useSelector((state: RootState) => state.kellner.orders);
 
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
   const authContext = React.useMemo(
@@ -245,7 +246,11 @@ export default function Navigation({
               <RootTab.Screen
                 name="Order"
                 component={OrderScreen}
-                options={{ tabBarLabel: "Pedido", headerShown: false }}
+                options={{
+                  tabBarLabel: "Pedido",
+                  tabBarBadge: orders.length > 0 ? orders.length : undefined,
+                  headerShown: false
+                }}
               />
               <RootTab.Screen
                 name="Favorite"
@@ -258,7 +263,7 @@ export default function Navigation({
                 options={{
                   tabBarLabel: "Mi perfil",
                   headerShown: false,
-                  tabBarBadge: "2",
+                  tabBarBadge: '',
                 }}
               />
             </RootTab.Navigator>

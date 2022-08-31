@@ -82,3 +82,17 @@ export type StartScreenProps<Screen extends keyof StartStackParamList> = Composi
   NativeStackScreenProps<StartStackParamList, Screen>,
   BottomTabScreenProps<RootTabParamList>
 >;
+
+export type OrderStackParamList = {
+  OrderHomeScreen: undefined;
+  OrderCheckoutScreen: {
+    order_id: number | undefined,
+  };
+  OrderPaymentScreen: {
+    order_id: number | undefined,
+   };
+};
+export type OrderScreenProps<Screen extends keyof OrderStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<OrderStackParamList, Screen>,
+  BottomTabScreenProps<RootTabParamList>
+>;

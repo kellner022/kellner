@@ -35,7 +35,7 @@ const RecipeHeaderLeft = (props: {
   navigation: any;
 }) => {
   const {title, logo, stars, comments_len, navigation} = props;
-  console.log('RecipeHeaderLeft: ', props);
+  // console.log('RecipeHeaderLeft: ', props);
   return (
     <View
       style={{
@@ -101,7 +101,7 @@ const RecipeHeaderRight = (props: {
   restaurant_id: number|undefined,
 }) => {
   const { restaurant_id } = props;
-  console.log('RecipeHeaderRight: ', props);
+  // console.log('RecipeHeaderRight: ', props);
 
   //Search icon: Search items in the restaurant specified with its id
   const onSearchRecipe = () => {
