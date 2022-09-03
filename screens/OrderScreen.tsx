@@ -436,14 +436,15 @@ const OrderCheckoutScreen = ({ route, navigation }: OrderScreenProps<'OrderCheck
         )}
         <View>
           {order ? (
-            <FlatList
-              data={recipeItemListFromOrder(order)}
+            <View
               style={{
                 backgroundColor: "#F3F3F3",
                 marginTop: 20,
               }}
-              renderItem={({ item, index, separators }) => (
+            >
+              {recipeItemListFromOrder(order).map((item, index) => (
                 <View
+                  key={`order-recipe-${item.item.recipe_id}-${index}`}
                   style={{
                     borderTopWidth: index !== 0 ? 1 : 0,
                     borderTopColor: "#E2E2E2",
@@ -475,9 +476,8 @@ const OrderCheckoutScreen = ({ route, navigation }: OrderScreenProps<'OrderCheck
                       : 0.0
                   } ${currencyText(item.info?.currency)}`}</Text>
                 </View>
-              )}
-              keyExtractor={(item, index) => `order-recipe-${item.item.recipe_id}-${index}`}
-            />
+              ))}
+            </View>
           ) : (
             <View
               style={{
@@ -526,7 +526,24 @@ const OrderCheckoutScreen = ({ route, navigation }: OrderScreenProps<'OrderCheck
               </Text>
             </Pressable>
           </View>
-          <FlatList
+          <View
+            style={{
+              paddingLeft: 20,
+              paddingTop: 10,
+            }}>
+            {order?.notes?.map((item, index) => (
+              <View key={`order-note-${index}`}>
+                <Text
+                  style={{
+                    color: "#434445",
+                    fontSize: 16,
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >{`-${item}`}</Text>
+              </View>
+            ))}
+          </View>
+          {/* <FlatList
             data={order?.notes}
             keyExtractor={(item, index) => `order-note-${index}`}
             style={{
@@ -544,7 +561,7 @@ const OrderCheckoutScreen = ({ route, navigation }: OrderScreenProps<'OrderCheck
                 >{`-${item}`}</Text>
               </View>
             )}
-          />
+          /> */}
         </View>
         <View>
           <View
