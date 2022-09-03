@@ -215,7 +215,7 @@ const StartHomeScreen = ({ route, navigation }: StartScreenProps<'StartHomeScree
   ]);
   const [restaurantsBack, setRestaurantsBack] = useState<Restaurant[]>([
     {
-      id: 4,
+      id: 6,
       name: 'Mulberry Pizza',
       loc: [97.38, 102.54],
       recips: [0, 1, 2],
@@ -226,7 +226,7 @@ const StartHomeScreen = ({ route, navigation }: StartScreenProps<'StartHomeScree
       comments: [0, 1, 2, 3],
     },
     {
-      id: 5,
+      id: 7,
       name: 'Café Paris',
       loc: [97.38, 102.54],
       recips: [0, 1, 2],
@@ -237,7 +237,7 @@ const StartHomeScreen = ({ route, navigation }: StartScreenProps<'StartHomeScree
       comments: [0, 1, 2, 3],
     },
     {
-      id: 6,
+      id: 8,
       name: 'Fiorentini',
       loc: [97.38, 102.54],
       recips: [0, 1, 2],
@@ -906,22 +906,21 @@ const StartRecipeScreen = ({ route, navigation }: StartScreenProps<'StartRecipeS
     if (item) {
       setCurrentIndex(0);
       setCheckoutRecipe(item);
+      setCheckoutRecipeQuantity(1);
       sheetRef.current?.snapToIndex(0);
       setIsOpen(true);
 
-      if (item) {
-        const id = setInterval(() => {
-          setCurrentIndex(preIndex => {
-            let newIndex = preIndex + 1;
-            if (newIndex >= item.images.length) {
-              newIndex = 0;
-            }
-            return newIndex;
-          });
-        }, 3000);
+      const id = setInterval(() => {
+        setCurrentIndex((preIndex) => {
+          let newIndex = preIndex + 1;
+          if (newIndex >= item.images.length) {
+            newIndex = 0;
+          }
+          return newIndex;
+        });
+      }, 3000);
 
-        setIntervalId(id);
-      }
+      setIntervalId(id);
     }
   };
 

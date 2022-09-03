@@ -6,10 +6,10 @@ interface User {
   userToken?: string;
   avatar?: string;
   uid?: string,
-  phone: string,
+  phone?: string,
   verified: boolean,
-  follows?: number[],
-  reviews?: number[],
+  follows?: number[], //users to whom are following
+  reviews?: number[], //comments
 }
 
 export default User;

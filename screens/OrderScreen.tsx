@@ -1,4 +1,4 @@
-import { StyleSheet, FlatList, Image, Pressable } from 'react-native';
+import { StyleSheet, FlatList, Image, Pressable, TouchableOpacity, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Text, View } from '../components/Themed';
 import type { RootState } from '../data/store';
@@ -7,10 +7,17 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from 'react-native-paper';
-import { Feather, Entypo, MaterialIcons, AntDesign, Ionicons } from '@expo/vector-icons';
-import Order from '../model/order';
-import { useSelector, useDispatch } from 'react-redux';
+import { Feather, Entypo, MaterialIcons, AntDesign, FontAwesome } from '@expo/vector-icons';
+import Order, { RecipeItem } from '../model/order';
+import { useSelector } from 'react-redux';
 import Restaurant from '../model/restaurant';
+import Recipe from '../model/recipe';
+import { Currency, currencyText } from '../model/enums';
+
+type OrderRecipeItem = {
+  item: RecipeItem;
+  info: Recipe|undefined;
+}
 
 const OrderStack = createStackNavigator<OrderStackParamList>();
 
@@ -68,7 +75,7 @@ const OrderHomeScreen = ({ route, navigation }: OrderScreenProps<'OrderHomeScree
     setTimeout(() => {
       //TODO: Fetch from server
       loadRestaurantInfo(orders);
-    }, 1000);
+    }, 500);
   }, []);
 
   const getRestaurant = (id: number) => {
@@ -270,33 +277,453 @@ const OrderHomeScreen = ({ route, navigation }: OrderScreenProps<'OrderHomeScree
 
 const OrderCheckoutScreen = ({ route, navigation }: OrderScreenProps<'OrderCheckoutScreen'>) => {
   const insets = useSafeAreaInsets();
-  const loginState = useSelector((state: RootState) => state.kellner.loginState);
+  const orders: Order[] = useSelector((state: RootState) => state.kellner.orders);
+  const allRestaurants: Restaurant[] = useSelector((state: RootState) => state.kellner.restaurants);
+  const allRecipes: Recipe[] = useSelector((state: RootState) => state.kellner.recipes);
   const { order_id }:{order_id: number|undefined} = route.params;
+  const [dinners, setDinners] = useState<number>(1);
 
-  console.log('order_id:', order_id);
+  const order = orders.find((e) => e.id === order_id);
+  console.log('order checkout:', order);
+
+  const [orderRestaurant, setOrderRestaurant] = useState<Restaurant>();
+  //Here we must define a function to get the list because it may change later
+  const recipeItemListFromOrder = (inOrder: Order) => {
+    const inOrderRecipes: OrderRecipeItem[]|undefined =  inOrder?.recipes.map(
+      (r) => {
+        const recipeInfo = allRecipes.find(e => e.id === r.recipe_id)
+        const orderRecipe: OrderRecipeItem = {
+          item: r,
+          info: recipeInfo,
+        };
+        return orderRecipe;
+      }
+    );
+
+    return inOrderRecipes ? inOrderRecipes : [];
+  };
+
+  const getTotalCost = () => {
+    if (!order) {
+      return '';
+    }
+    const list = recipeItemListFromOrder(order);
+    if (list.length <= 0) {
+      return '';
+    }
+
+    let total = 0.0;
+    let currency = list[0].info ? list[0].info.currency : Currency.EU;
+    const initVal = {
+      val: 0.0
+    };
+    const sumCost = list.reduce((pre, current: OrderRecipeItem) => {
+      if (current.info) {
+        return {val: (pre.val + current.info?.price * current.item.quantity)};
+      }
+      else {
+        return {val: pre.val};
+      }
+    }, initVal);
+    total = sumCost.val;
+
+    return `${total}${currencyText(currency)}`
+  };
+
+  const getCostPerDinner = () => {
+    if (!order) {
+      return '';
+    }
+    const list = recipeItemListFromOrder(order);
+    if (list.length <= 0) {
+      return '';
+    }
+
+    let total = 0.0;
+    let currency = list[0].info ? list[0].info.currency : Currency.EU;
+    const initVal = {
+      val: 0.0
+    };
+    const sumCost = list.reduce((pre, current: OrderRecipeItem) => {
+      if (current.info) {
+        return {val: (pre.val + current.info?.price * current.item.quantity)};
+      }
+      else {
+        return {val: pre.val};
+      }
+    }, initVal);
+    total = sumCost.val;
+
+    return `${(total/dinners).toFixed(2)}${currencyText(currency)}`
+  };
+
+  //Restaurant info, this is Okay, because we will not change this once created
+  useEffect(() => {
+    //axios.get(https://www.firebase.com/kellner/api/v1/restaurant/1)
+    //.then((resp) => {
+    // setRestaurant(resp.data);
+    //})
+    //.catch(err => {
+    // console.err('Oh no, failed to fetch restaurant info from server');
+    //});
+    setTimeout(() => {
+      const restaurant = allRestaurants.find((e) => e.id === order?.restaurants_id);
+      if (restaurant) {
+        setOrderRestaurant(restaurant);
+      }
+    }, 500);
+  }, []);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={{flexDirection: 'row'}}>
-        {
-          // Header
-        }
-      </View>
-      <View>
-        {
-          // Recipe Items
-        }
-      </View>
-      <View>
-        {
-          // Notes
-        }
-      </View>
-      <View>
-        {
-          // Total and submit
-        }
-      </View>
+    <View style={styles.container}>
+      <ScrollView>
+        {orderRestaurant ? (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginHorizontal: 5,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+              }}
+            >
+              <Avatar.Image
+                size={85}
+                source={
+                  orderRestaurant.logo
+                    ? { uri: orderRestaurant.logo }
+                    : require("../assets/images/logo.png")
+                }
+                style={{ marginLeft: 10 }}
+              />
+              <View
+                style={{
+                  alignItems: "flex-start",
+                  justifyContent: "center",
+                  marginLeft: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#434445",
+                    fontSize: 22,
+                    fontFamily: "Montserrat-SemiBold",
+                  }}
+                >
+                  {orderRestaurant.name}
+                </Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <FontAwesome name="map-marker" size={24} color="#BE384C" />
+                  <Text
+                    style={{
+                      marginLeft: 2,
+                      color: "#B6B7B7",
+                    }}
+                  >
+                    {orderRestaurant.address.substring(0, 21)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <MaterialIcons name="favorite" size={35} color="#BE384C" />
+          </View>
+        ) : (
+          <View></View>
+        )}
+        <View>
+          {order ? (
+            <FlatList
+              data={recipeItemListFromOrder(order)}
+              style={{
+                backgroundColor: "#F3F3F3",
+                marginTop: 20,
+              }}
+              renderItem={({ item, index, separators }) => (
+                <View
+                  style={{
+                    borderTopWidth: index !== 0 ? 1 : 0,
+                    borderTopColor: "#E2E2E2",
+                    justifyContent: "space-between",
+                    backgroundColor: "transparent",
+                    flexDirection: "row",
+                    paddingHorizontal: 10,
+                    height: 55,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#434445",
+                      fontSize: 18,
+                      fontFamily: "Montserrat-Regular",
+                    }}
+                  >{`${item.info?.name} x${item.item.quantity}`}</Text>
+                  <Text
+                    style={{
+                      color: "#434445",
+                      fontSize: 20,
+                      fontFamily: "Montserrat-SemiBold",
+                      fontWeight: "bold",
+                    }}
+                  >{`${
+                    item.info?.price
+                      ? item.info?.price * item.item.quantity
+                      : 0.0
+                  } ${currencyText(item.info?.currency)}`}</Text>
+                </View>
+              )}
+              keyExtractor={(item, index) => `order-recipe-${item.item.recipe_id}-${index}`}
+            />
+          ) : (
+            <View
+              style={{
+                backgroundColor: "grey",
+              }}
+            ></View>
+          )}
+        </View>
+        <View
+          style={{
+            marginVertical: 20,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginHorizontal: 5,
+            }}
+          >
+            <Text
+              style={{
+                width: "50%",
+                fontSize: 20,
+                fontFamily: "Montserrat-SemiBold",
+                fontWeight: "bold",
+              }}
+            >
+              A tener en cuenta sobre el pedido
+            </Text>
+            <Pressable
+              onPress={() => {
+                console.log("Add new note ...");
+              }}
+            >
+              <Text
+                style={{
+                  color: "#BE384C",
+                  fontSize: 20,
+                  fontFamily: "Montserrat-SemiBold",
+                  fontWeight: "bold",
+                }}
+              >
+                + Añadir nota
+              </Text>
+            </Pressable>
+          </View>
+          <FlatList
+            data={order?.notes}
+            keyExtractor={(item, index) => `order-note-${index}`}
+            style={{
+              paddingLeft: 20,
+              paddingTop: 10,
+            }}
+            renderItem={({ item, index, separators }) => (
+              <View>
+                <Text
+                  style={{
+                    color: "#434445",
+                    fontSize: 16,
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >{`-${item}`}</Text>
+              </View>
+            )}
+          />
+        </View>
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#BE384C",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingHorizontal: 5,
+              height: 90,
+            }}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 20,
+                fontFamily: "Montserrat-Regular",
+              }}
+            >
+              Comensales
+            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                backgroundColor: "transparent",
+                width: "35%",
+                justifyContent: "space-around",
+                alignItems: "center",
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  setDinners((prev) => {
+                    let newVal = prev - 1;
+                    if (newVal < 1) {
+                      newVal = 1;
+                    }
+                    return newVal;
+                  });
+                }}
+              >
+                <View
+                  style={{
+                    height: 45,
+                    width: 45,
+                    borderRadius: 22.5,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "Montserrat-Regular",
+                      fontSize: 35,
+                      color: "#BE384C",
+                    }}
+                  >
+                    -
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontFamily: "Montserrat-Regular",
+                  fontSize: 20,
+                  color: "white",
+                }}
+              >
+                {dinners}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setDinners((prev) => prev + 1);
+                }}
+              >
+                <View
+                  style={{
+                    height: 45,
+                    width: 45,
+                    borderRadius: 22.5,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "Montserrat-Regular",
+                      fontSize: 35,
+                      color: "#BE384C",
+                    }}
+                  >
+                    +
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              marginHorizontal: 10,
+              justifyContent: "space-between",
+              marginTop: 20,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontFamily: "Montserrat-SemiBold",
+                color: "#434445",
+              }}
+            >
+              Total
+            </Text>
+            <Text
+              style={{
+                fontSize: 20,
+                fontFamily: "Montserrat-SemiBold",
+                color: "#BE384C",
+              }}
+            >
+              {getTotalCost()}
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              marginHorizontal: 10,
+              justifyContent: "space-between",
+              marginTop: 5,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontFamily: "Montserrat-SemiBold",
+                color: "#434445",
+              }}
+            >
+              Coste por persona
+            </Text>
+            <Text
+              style={{
+                fontSize: 20,
+                fontFamily: "Montserrat-SemiBold",
+                color: "#BE384C",
+              }}
+            >
+              {getCostPerDinner()}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#BE384C",
+              height: 60,
+              marginHorizontal: "10%",
+              marginTop: 50,
+              borderRadius: 22.5,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onPress={() => {
+              navigation.navigate("OrderPaymentScreen", {
+                order_id: order_id,
+              });
+            }}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 20,
+                fontFamily: "Montserrat-SemiBold",
+              }}
+            >
+              Ir al pago
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -397,7 +824,7 @@ export default function OrderScreen({ route, navigation }: RootTabOrderScreenPro
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     // justifyContent: 'center',
     // backgroundColor: '#C93E54',
   },
