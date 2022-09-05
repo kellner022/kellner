@@ -7,12 +7,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from 'react-native-paper';
-import { Feather, Entypo, MaterialIcons, AntDesign, FontAwesome } from '@expo/vector-icons';
+import { FontAwesome5, Entypo, MaterialIcons, AntDesign, FontAwesome, Fontisto } from '@expo/vector-icons';
 import Order, { RecipeItem } from '../model/order';
 import { useSelector } from 'react-redux';
 import Restaurant from '../model/restaurant';
 import Recipe from '../model/recipe';
-import { Currency, currencyText } from '../model/enums';
+import { Currency, currencyText, PaymentMethod } from '../model/enums';
 
 type OrderRecipeItem = {
   item: RecipeItem;
@@ -746,43 +746,290 @@ const OrderCheckoutScreen = ({ route, navigation }: OrderScreenProps<'OrderCheck
 };
 
 const OrderPaymentScreen = ({ route, navigation }: OrderScreenProps<'OrderPaymentScreen'>) => {
-  const insets = useSafeAreaInsets();
-  const loginState = useSelector((state: RootState) => state.kellner.loginState);
+  // const insets = useSafeAreaInsets();
+  const orders = useSelector((state: RootState) => state.kellner.orders);
+  const allRecipes: Recipe[] = useSelector((state: RootState) => state.kellner.recipes);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.Apple);
   const { order_id }:{order_id: number|undefined} = route.params;
+  const order = orders.find((e) => e.id === order_id);
+  console.log('order checkout:', order);
+
+  const recipeItemListFromOrder = (inOrder: Order) => {
+    const inOrderRecipes: OrderRecipeItem[]|undefined =  inOrder?.recipes.map(
+      (r) => {
+        const recipeInfo = allRecipes.find(e => e.id === r.recipe_id)
+        const orderRecipe: OrderRecipeItem = {
+          item: r,
+          info: recipeInfo,
+        };
+        return orderRecipe;
+      }
+    );
+
+    return inOrderRecipes ? inOrderRecipes : [];
+  };
+
+  const getTotalCost = () => {
+    if (!order) {
+      return '';
+    }
+    const list = recipeItemListFromOrder(order);
+    if (list.length <= 0) {
+      return '';
+    }
+
+    let total = 0.0;
+    let currency = list[0].info ? list[0].info.currency : Currency.EU;
+    const initVal = {
+      val: 0.0
+    };
+    const sumCost = list.reduce((pre, current: OrderRecipeItem) => {
+      if (current.info) {
+        return {val: (pre.val + current.info?.price * current.item.quantity)};
+      }
+      else {
+        return {val: pre.val};
+      }
+    }, initVal);
+    total = sumCost.val;
+
+    return `${total}${currencyText(currency)}`
+  };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Text>Payment</Text>
-    </View>
-  );
-};
+    <View style={[styles.container, { backgroundColor: "#F3F3F3" }]}>
+      <ScrollView>
+        <View
+          style={{
+            backgroundColor: "white",
+            paddingHorizontal: 10,
+            paddingTop: 25,
+          }}
+        >
+          <Text
+            style={{
+              color: "#6E6E6F",
+              fontSize: 15,
+              fontFamily: "Montserrat-Regular",
+            }}
+          >
+            Dirección de facturación
+          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginVertical: 10,
+            }}
+          >
+            <Text
+              style={{
+                color: "#434445",
+                fontSize: 18,
+                fontFamily: "Montserrat-Regular",
+                width: "80%",
+              }}
+            >
+              Pintor Picasso 70, 5ºB San Vicente del Raspeig, Alicante 03690
+            </Text>
+            <Pressable onPress={() => {}}>
+              <Text
+                style={{
+                  color: "#BE384C",
+                  fontSize: 18,
+                  fontFamily: "Montserrat-Regular",
+                }}
+              >
+                Editar
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+        <View
+          style={{
+            backgroundColor: "white",
+            marginTop: 10,
+            paddingHorizontal: 10,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: 'center',
+              height: 50,
+            }}
+          >
+            <Text style={{
+              color: "#6E6E6F",
+              fontSize: 15,
+              fontFamily: "Montserrat-Regular",
+            }}>Método de pago</Text>
 
-const OrderHeaderLeft = (props: {
-  navigation: any;
-}) => {
-  const {navigation} = props;
-
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: '#C93E54'
-      }}
-    >
-      <AntDesign
-        name="left"
-        size={30}
-        color="white"
-        onPress={() => {
-          console.log("Go back home...");
-          navigation.goBack();
-        }}
-      />
-      <Text style={{
-        color: 'white',
-        fontSize: 20,
-        }}>Volver</Text>
+            <Text style={{
+              color: "#BE384C",
+              fontSize: 15,
+              fontFamily: "Montserrat-Regular",
+            }} onPress={() => {
+              console.log('To add new payment method ...');
+            }}>+ Añadir método de pago</Text>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              backgroundColor: "#F3F3F3",
+              alignItems: "center",
+              marginVertical: 5,
+              borderRadius: 5,
+              borderColor: "#E7E7E7",
+              borderWidth: 1,
+              height: 55,
+            }}
+          >
+            <View style={{ backgroundColor: "transparent", marginLeft: 25 }}>
+              <FontAwesome5 name="apple-pay" size={50} color="black" />
+            </View>
+            <Pressable
+              onPress={() => {
+                setPaymentMethod(PaymentMethod.Apple);
+              }}
+              style={{
+                marginRight: 25,
+              }}
+            >
+              {paymentMethod === PaymentMethod.Apple ? (
+                <FontAwesome name="circle" size={26} color="#BB3A4D" />
+              ) : (
+                <Entypo name="circle" size={24} color="#BB3A4D" />
+              )}
+            </Pressable>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              backgroundColor: "#F3F3F3",
+              alignItems: "center",
+              marginVertical: 5,
+              borderRadius: 5,
+              borderColor: "#E7E7E7",
+              borderWidth: 1,
+              height: 55,
+            }}
+          >
+            <View style={{
+              backgroundColor: "transparent",
+              marginLeft: 25,
+              flexDirection: 'row',
+              alignItems: 'center'
+            }}>
+              <Fontisto name="visa" size={35} color="blue" />
+              <Text style={{
+                marginLeft: 5,
+                fontFamily: "Montserrat-Regular",
+              }}>{`**** **** **** 2178`}</Text>
+            </View>
+            <Pressable
+              onPress={() => {
+                setPaymentMethod(PaymentMethod.Visa);
+              }}
+              style={{
+                marginRight: 25,
+              }}
+            >
+              {paymentMethod === PaymentMethod.Visa ? (
+                <FontAwesome name="circle" size={26} color="#BB3A4D" />
+              ) : (
+                <Entypo name="circle" size={24} color="#BB3A4D" />
+              )}
+            </Pressable>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              backgroundColor: "#F3F3F3",
+              alignItems: "center",
+              marginVertical: 5,
+              borderRadius: 5,
+              borderColor: "#E7E7E7",
+              borderWidth: 1,
+              height: 55,
+            }}
+          >
+            <View style={{
+              backgroundColor: "transparent",
+              marginLeft: 25,
+              flexDirection: 'row',
+              alignItems: 'center'
+              }}>
+              <FontAwesome name="paypal" size={35} color="blue" />
+              <Text style={{
+                marginLeft: 5,
+                fontFamily: "Montserrat-Regular",
+              }}>{`gm@hydros-pwr.com`}</Text>
+            </View>
+            <Pressable
+              onPress={() => {
+                setPaymentMethod(PaymentMethod.Paypal);
+              }}
+              style={{
+                marginRight: 25,
+              }}
+            >
+              {paymentMethod === PaymentMethod.Paypal ? (
+                <FontAwesome name="circle" size={26} color="#BB3A4D" />
+              ) : (
+                <Entypo name="circle" size={24} color="#BB3A4D" />
+              )}
+            </Pressable>
+          </View>
+        </View>
+        <View
+          style={{
+            backgroundColor: "white",
+            marginTop: 10,
+            paddingHorizontal: 10,
+            height: '100%',
+          }}
+        >
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginTop: 15,
+          }}>
+            <Text style={{
+              color: "#434445",
+              fontSize: 20,
+              fontFamily: "Montserrat-Regular",
+            }}>Total</Text>
+            <Text style={{
+              color: "#BE384C",
+              fontSize: 20,
+              fontFamily: "Montserrat-Regular",
+            }}>{getTotalCost()}</Text>
+          </View>
+          <Pressable onPress={() => {
+            console.log('To make the payment ...');
+          }}
+          style={{
+            backgroundColor: '#BE384C',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 55,
+            marginHorizontal: '5%',
+            marginTop: 10,
+            borderRadius: 22.5,
+          }}>
+            <Text style={{
+              color: "white",
+              fontSize: 20,
+              fontFamily: "Montserrat-Regular",
+            }}>Pagar</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -821,17 +1068,17 @@ export default function OrderScreen({ route, navigation }: RootTabOrderScreenPro
         name="OrderPaymentScreen"
         component={OrderPaymentScreen}
         initialParams={{}}
-        options={(orderScreenProps: {
-          route: RouteProp<OrderStackParamList, "OrderPaymentScreen">;
-          navigation: any;
-        }) => ({
-          headerLeft: (orderHeaderprops) =>
-            OrderHeaderLeft({
-              navigation: navigation,
-            }),
-          title: "",
-          headerStyle: { backgroundColor: "#C93E54", height: 155 },
-          headerTitleAlign: "center",
+        options={() => ({
+          headerTitle: "",
+          headerBackTitle: "Mi pedido",
+          headerBackTitleStyle: {
+            color: "black",
+            fontSize: 25,
+            fontFamily: "Montserrat-SemiBold",
+          },
+          headerBackImage: () => (
+            <AntDesign name="left" size={30} color="black" />
+          ),
         })}
       />
     </OrderStack.Navigator>
