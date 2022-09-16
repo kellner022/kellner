@@ -91,6 +91,7 @@ export type OrderStackParamList = {
   OrderPaymentScreen: {
     order_id: number | undefined,
    };
+  OrderPaymentDoneScreen: undefined;
 };
 export type OrderScreenProps<Screen extends keyof OrderStackParamList> = CompositeScreenProps<
   NativeStackScreenProps<OrderStackParamList, Screen>,

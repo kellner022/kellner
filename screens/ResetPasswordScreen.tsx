@@ -1,12 +1,10 @@
 import React from "react";
 import {
   View,
-  Image,
   StyleSheet,
   Text,
   TextInput,
   ImageBackground,
-  TouchableOpacity,
   Alert,
 } from "react-native";
 import { Button } from 'react-native-paper';

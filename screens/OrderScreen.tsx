@@ -1,12 +1,11 @@
-import { StyleSheet, FlatList, Image, Pressable, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, FlatList, ImageBackground, Pressable, TouchableOpacity, ScrollView, Image, } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Text, View } from '../components/Themed';
 import type { RootState } from '../data/store';
 import { RootTabOrderScreenProps, OrderStackParamList, OrderScreenProps } from '../types';
 import { createStackNavigator } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Avatar } from 'react-native-paper';
+import { Avatar, Button } from 'react-native-paper';
 import { FontAwesome5, Entypo, MaterialIcons, AntDesign, FontAwesome, Fontisto } from '@expo/vector-icons';
 import Order, { RecipeItem } from '../model/order';
 import { useSelector } from 'react-redux';
@@ -1012,6 +1011,7 @@ const OrderPaymentScreen = ({ route, navigation }: OrderScreenProps<'OrderPaymen
           </View>
           <Pressable onPress={() => {
             console.log('To make the payment ...');
+            navigation.navigate("OrderPaymentDoneScreen");
           }}
           style={{
             backgroundColor: '#BE384C',
@@ -1030,6 +1030,63 @@ const OrderPaymentScreen = ({ route, navigation }: OrderScreenProps<'OrderPaymen
           </Pressable>
         </View>
       </ScrollView>
+    </View>
+  );
+};
+
+const OrderPaymentDoneScreen = ({ route, navigation }: OrderScreenProps<'OrderPaymentDoneScreen'>) => {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={styles.container}>
+      <ImageBackground
+        source={require("../assets/images/background.png")}
+        resizeMode="repeat"
+        style={{
+          flex: 1,
+          height: '100%',
+          width: '100%',
+        }}
+      >
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: 'transparent',
+            marginTop: insets.top
+          }}
+        >
+          <Image source={{uri: 'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fpayment-done.png?alt=media&token=7e89aaa1-6830-43a3-8143-8a6619014af6'}}
+            style={{
+              width: '62%',
+              height: '55%',
+              paddingTop: 25,
+              resizeMode: "stretch"}}></Image>
+          <Text style={{
+            color: 'white',
+            fontFamily: "Montserrat-SemiBold",
+            fontSize: 25,
+            width: '60%',
+            textAlign: 'center',
+            marginTop: 20,
+          }}>¡Pedido realizado con éxito!</Text>
+          <Button
+            mode="contained"
+            onPress={() => {
+              console.log("Resetting password ...");
+              // navigation.getParent()?.navigate('');
+              navigation.navigate("OrderHomeScreen");
+            }}
+            color={"white"}
+            contentStyle={{ height: 60, width: 350 }}
+            labelStyle={{ fontSize: 22, color: "#C93E54" }}
+            style={[styles.signInButton, { marginTop: 30 }]}
+            uppercase={false}
+          >
+            Volver
+          </Button>
+        </View>
+      </ImageBackground>
     </View>
   );
 };
@@ -1081,6 +1138,11 @@ export default function OrderScreen({ route, navigation }: RootTabOrderScreenPro
           ),
         })}
       />
+      <OrderStack.Screen
+        name="OrderPaymentDoneScreen"
+        component={OrderPaymentDoneScreen}
+        options={{ headerShown: false }}
+      />
     </OrderStack.Navigator>
   );
 }
@@ -1100,5 +1162,14 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: '80%',
+  },
+  main: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  signInButton: {
+    marginTop: 20,
+    borderRadius: 50,
   },
 });
