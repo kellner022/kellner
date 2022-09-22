@@ -1534,7 +1534,8 @@ const StartCommentScreen = ({ route, navigation }: StartScreenProps<'StartCommen
                   borderColor: "#C93E54",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: "20%",
+                  width: 70,
+                  height: 25,
                   marginVertical: 5,
                 }}
               >
@@ -1603,7 +1604,7 @@ const StartCommentScreen = ({ route, navigation }: StartScreenProps<'StartCommen
       >
         <TouchableOpacity
           style={{
-            width: "38%",
+            width: 150,
             height: 50,
             backgroundColor: "#C93E54",
             alignItems: "center",
