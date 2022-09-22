@@ -1455,14 +1455,14 @@ const StartCommentScreen = ({ route, navigation }: StartScreenProps<'StartCommen
   useEffect(() => {
     setTimeout(() => {
       //TODO: Fetch from server
-      const allComments = [
+      const allComments: Comment[] = [
         {
           id: 0,
           author_id: 1,
           restaurant_id: 0,
           content: `Me gustó la comida del restaurante. Los platos son atractivos y muy bonitos. Buena comida, espacio lujoso y servicio entusiasta. Volveré enel…`,
-          create_date: new Date("2022-05-17T03:24:00"),
-          update_date: new Date("2022-05-17T03:24:00"),
+          create_date: new Date("2022-05-17T03:24:00").toString(),
+          update_date: new Date("2022-05-17T03:24:00").toString(),
           stars: 4.9,
           images:[
             'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fcomment-images-1.png?alt=media&token=8b92f38b-d5df-4597-827c-416ab30833c9',
@@ -1475,8 +1475,8 @@ const StartCommentScreen = ({ route, navigation }: StartScreenProps<'StartCommen
           author_id: 2,
           restaurant_id: 1,
           content: `Me gustó la comida del restaurante. La reserva y la integración con Kellner fue maravillosa. Hicimos la reserva por la app, nos sentarnos en la mesa y pagamos al instante…`,
-          create_date: new Date("2022-05-18T03:24:00"),
-          update_date: new Date("2022-05-18T03:24:00"),
+          create_date: new Date("2022-05-18T03:24:00").toString(),
+          update_date: new Date("2022-05-18T03:24:00").toString(),
           stars: 4.9,
           images: [
             'https://firebasestorage.googleapis.com/v0/b/kellner-a0864.appspot.com/o/images%2Fcomment-image-4.png?alt=media&token=60225c2d-1c41-49a9-a03b-23e4a732fa8e',
