@@ -36,7 +36,8 @@ export default function ProfileScreen({ route, navigation }: RootTabProfileScree
   const allUsers: User[] = useSelector((state: RootState) => state.kellner.users);
   const allComments: Comment[] = useSelector((state: RootState) => state.kellner.comments);
   const [followedRestaurants, setFollowedRestaurants] = useState<FollowedRestaurant[]>([]);
-  const [recmUsers, setRecmUsers] = useState<User[]>();
+  const [recmUserAccounts, setRecmUserAccounts] = useState<User[]>();
+  const [accountsListExpanded, setAccountsListExpanded] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [myRestaurantBlog, setMyRestaurantBlog] = useState<RestaurantBlog[]>([]);
   const [myComments, setMyComments] = useState<Comment[]>([]);
@@ -117,7 +118,7 @@ export default function ProfileScreen({ route, navigation }: RootTabProfileScree
 
   useEffect(() => {
     setTimeout(() => {
-      setRecmUsers([
+      setRecmUserAccounts([
         {
           id: 1,
           email: 'ivan@kellner.com',
@@ -354,8 +355,11 @@ export default function ProfileScreen({ route, navigation }: RootTabProfileScree
               borderColor: "#BE384C",
               marginLeft: 10,
             }}
+            onPress={() => {
+              setAccountsListExpanded(!accountsListExpanded);
+            }}
           >
-            <AntDesign name="down" size={24} color="#BE384C" />
+            <AntDesign name={accountsListExpanded ? "up": "down"} size={24} color="#BE384C" />
           </Pressable>
         </View>
       </View>
